@@ -1,6 +1,21 @@
 const bcrypt = require('bcrypt');
 const jwt = require('jsonwebtoken');
 const pool = require('../db');
+const { JWT_SECRET, JWT_OPTIONS } = require('../config/jwtConfig');
+
+/**
+ * Helper to generate a production-grade signed JWT token.
+ */
+function generateToken(user) {
+  const payload = {
+    id: user.id,
+    name: user.name,
+    email: user.email,
+    role: user.role
+  };
+
+  return jwt.sign(payload, JWT_SECRET, JWT_OPTIONS);
+}
 
 /**
  * Register a new customer user account.
@@ -11,7 +26,7 @@ async function register(req, res) {
     const { name, email, password } = req.body;
     const cleanEmail = email.trim().toLowerCase();
 
-    // Check if user with given email already exists
+    // Check if email already exists
     const [existingUsers] = await pool.execute(
       'SELECT id FROM users WHERE email = ?',
       [cleanEmail]
@@ -21,11 +36,11 @@ async function register(req, res) {
       return res.status(400).json({ error: 'Email is already registered' });
     }
 
-    // Hash password with bcrypt cost factor 10
+    // Hash password using bcrypt (salt rounds = 10)
     const saltRounds = 10;
     const passwordHash = await bcrypt.hash(password, saltRounds);
 
-    // Insert user into database with default role 'customer'
+    // Insert new customer user
     const [result] = await pool.execute(
       'INSERT INTO users (name, email, password_hash, role) VALUES (?, ?, ?, ?)',
       [name.trim(), cleanEmail, passwordHash, 'customer']
@@ -38,8 +53,11 @@ async function register(req, res) {
       role: 'customer'
     };
 
+    const token = generateToken(newUser);
+
     return res.status(201).json({
       message: 'User registered successfully',
+      token,
       user: newUser
     });
   } catch (error) {
@@ -49,7 +67,7 @@ async function register(req, res) {
 }
 
 /**
- * Log in existing user (Customer or Agent) and issue JWT.
+ * Log in existing user (Customer or Agent) and return JWT.
  * POST /api/auth/login
  */
 async function login(req, res) {
@@ -57,7 +75,6 @@ async function login(req, res) {
     const { email, password } = req.body;
     const cleanEmail = email.trim().toLowerCase();
 
-    // Fetch user record from database
     const [users] = await pool.execute(
       'SELECT id, name, email, password_hash, role FROM users WHERE email = ?',
       [cleanEmail]
@@ -69,34 +86,24 @@ async function login(req, res) {
 
     const user = users[0];
 
-    // Verify hashed password
+    // Verify bcrypt password hash
     const isPasswordValid = await bcrypt.compare(password, user.password_hash);
     if (!isPasswordValid) {
       return res.status(401).json({ error: 'Invalid email or password' });
     }
 
-    // Sign JWT token with minimum required payload
-    const tokenPayload = {
+    const userData = {
       id: user.id,
       name: user.name,
       email: user.email,
       role: user.role
     };
 
-    const token = jwt.sign(
-      tokenPayload,
-      process.env.JWT_SECRET || 'super_secret_jwt_key_support_ticket_system_2026',
-      { expiresIn: '24h' }
-    );
+    const token = generateToken(userData);
 
     return res.status(200).json({
       token,
-      user: {
-        id: user.id,
-        name: user.name,
-        email: user.email,
-        role: user.role
-      }
+      user: userData
     });
   } catch (error) {
     console.error('[authController.login] Error:', error);
@@ -104,7 +111,30 @@ async function login(req, res) {
   }
 }
 
+/**
+ * Get current authenticated user details from JWT.
+ * GET /api/auth/me
+ */
+async function getCurrentUser(req, res) {
+  try {
+    const [users] = await pool.execute(
+      'SELECT id, name, email, role, created_at FROM users WHERE id = ?',
+      [req.user.id]
+    );
+
+    if (users.length === 0) {
+      return res.status(404).json({ error: 'User account not found' });
+    }
+
+    return res.status(200).json({ user: users[0] });
+  } catch (error) {
+    console.error('[authController.getCurrentUser] Error:', error);
+    return res.status(500).json({ error: 'Failed to fetch user profile' });
+  }
+}
+
 module.exports = {
   register,
-  login
+  login,
+  getCurrentUser
 };
