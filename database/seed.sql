@@ -11,14 +11,13 @@ TRUNCATE TABLE users;
 SET FOREIGN_KEY_CHECKS = 1;
 
 -- Password for all seed users is: password123
--- Hash computed with bcrypt (cost factor 10): $2b$10$7R.sH.JzM161O4M06w4KvuwQWnFzLgA5tK1Tz24r.JdFf3mB4T12G (or dynamic via Node script)
--- We will insert pre-hashed bcrypt strings for password123
+-- Verified bcrypt hash: $2b$10$hAxpKUXSt8nLT3DFNkLimeEL/JgdAUeeoUF7aYC5Xj82FvhRgjPRa
 
 INSERT INTO users (id, name, email, password_hash, role) VALUES
 (1, 'John Customer', 'john@example.com', '$2b$10$hAxpKUXSt8nLT3DFNkLimeEL/JgdAUeeoUF7aYC5Xj82FvhRgjPRa', 'customer'),
 (2, 'Sarah Customer', 'sarah@example.com', '$2b$10$hAxpKUXSt8nLT3DFNkLimeEL/JgdAUeeoUF7aYC5Xj82FvhRgjPRa', 'customer'),
-(3, 'Alex Agent', 'alex.agent@support.com', '$2b$10$hAxpKUXSt8nLT3DFNkLimeEL/JgdAUeeoUF7aYC5Xj82FvhRgjPRa', 'agent'),
-(4, 'Maria Support', 'maria.agent@support.com', '$2b$10$hAxpKUXSt8nLT3DFNkLimeEL/JgdAUeeoUF7aYC5Xj82FvhRgjPRa', 'agent');
+(3, 'Admin Support Agent', 'admin.agent@support.com', '$2b$10$hAxpKUXSt8nLT3DFNkLimeEL/JgdAUeeoUF7aYC5Xj82FvhRgjPRa', 'agent'),
+(4, 'Maria Support Agent', 'maria.agent@support.com', '$2b$10$hAxpKUXSt8nLT3DFNkLimeEL/JgdAUeeoUF7aYC5Xj82FvhRgjPRa', 'agent');
 
 -- Seed Tickets
 INSERT INTO tickets (id, user_id, subject, description, priority, status, assigned_to, created_at) VALUES
@@ -31,6 +30,6 @@ INSERT INTO tickets (id, user_id, subject, description, priority, status, assign
 INSERT INTO ticket_comments (id, ticket_id, user_id, comment, created_at) VALUES
 (1, 1, 1, 'Hi team, any update on this issue? It is blocking my daily workflow.', NOW() - INTERVAL 1 DAY),
 (2, 1, 3, 'Hello John! I am looking into your account logs right now. It appears to be a cached session token issue. Stand by while I reset your active session.', NOW() - INTERVAL 18 HOUR),
-(3, 1, 1, 'Thank you Alex! Please let me know once I can test logging in again.', NOW() - INTERVAL 12 HOUR),
+(3, 1, 1, 'Thank you Admin! Please let me know once I can test logging in again.', NOW() - INTERVAL 12 HOUR),
 (4, 4, 2, 'Could you let us know if export to PDF is planned for Q4?', NOW() - INTERVAL 4 DAY),
 (5, 4, 3, 'Hi Sarah, we have logged this feature request with our product team. Closing this ticket for now as a tracked request!', NOW() - INTERVAL 3 DAY);
