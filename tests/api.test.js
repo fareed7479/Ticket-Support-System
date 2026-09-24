@@ -88,7 +88,7 @@ describe('Support Ticket System API Tests', () => {
       const res = await request(app).get('/api/tickets');
 
       expect(res.status).toBe(401);
-      expect(res.body).toHaveProperty('error', 'Access token required');
+      expect(res.body).toHaveProperty('error', 'Authentication token required');
     });
   });
 
