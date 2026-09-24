@@ -1,14 +1,14 @@
 import React, { useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
-import { Ticket, User, Mail, Lock, AlertCircle, CheckCircle2, ArrowRight } from 'lucide-react';
+import { HelpCircle, Eye, EyeOff, AlertCircle, CheckCircle2, ShieldAlert } from 'lucide-react';
+import abstractBgImg from '../assets/auth_abstract_bg.jpg';
 
 const Register = () => {
   const [name, setName] = useState('');
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
-  const [confirmPassword, setConfirmPassword] = useState('');
-  
+  const [showPassword, setShowPassword] = useState(false);
   const [error, setError] = useState('');
   const [success, setSuccess] = useState('');
   const [submitting, setSubmitting] = useState(false);
@@ -21,13 +21,8 @@ const Register = () => {
     setError('');
     setSuccess('');
 
-    if (!name.trim()) {
-      setError('Full name is required');
-      return;
-    }
-
-    if (!email.trim()) {
-      setError('Email address is required');
+    if (!name.trim() || !email.trim() || !password) {
+      setError('Please fill in all fields');
       return;
     }
 
@@ -36,134 +31,158 @@ const Register = () => {
       return;
     }
 
-    if (password !== confirmPassword) {
-      setError('Passwords do not match');
-      return;
-    }
-
     try {
       setSubmitting(true);
       await register(name.trim(), email.trim(), password);
-      setSuccess('Registration successful! Redirecting to login...');
-      setTimeout(() => {
-        navigate('/login');
-      }, 1500);
+      setSuccess('Customer account created successfully! Redirecting to login...');
+      setTimeout(() => navigate('/login'), 1500);
     } catch (err) {
       console.error('Registration error:', err);
-      const msg = err.response?.data?.error || 'Registration failed. Please check your inputs.';
-      setError(msg);
+      setError(err.response?.data?.error || 'Registration failed.');
     } finally {
       setSubmitting(false);
     }
   };
 
   return (
-    <div className="auth-page-container">
-      <div className="auth-card">
-        <div className="auth-header">
-          <div className="brand-logo">
-            <Ticket size={32} />
+    <div className="split-right-panel" style={{
+      minHeight: '100vh',
+      backgroundColor: '#f8fafc',
+      position: 'relative',
+      overflow: 'hidden',
+      display: 'flex',
+      alignItems: 'center',
+      justifyContent: 'center'
+    }}>
+      {/* Abstract Green Blob Graphic Background */}
+      <img
+        src={abstractBgImg}
+        alt="Abstract background graphic"
+        style={{
+          position: 'absolute',
+          bottom: '-10%',
+          left: '-10%',
+          width: '550px',
+          opacity: 0.35,
+          pointerEvents: 'none',
+          zIndex: 1
+        }}
+      />
+
+      <div className="auth-form-card" style={{ maxWidth: '460px', position: 'relative', zIndex: 10 }}>
+        <div style={{ display: 'flex', alignItems: 'center', gap: '0.6rem', marginBottom: '1.5rem', justifyContent: 'center' }}>
+          <div className="sidebar-logo-icon" style={{ background: '#0b1329', color: '#ffffff' }}>
+            <HelpCircle size={20} />
           </div>
-          <h2>Create Customer Account</h2>
-          <p className="auth-subtitle">Register to submit and track your support tickets</p>
+          <span className="sidebar-brand-name" style={{ color: '#0b1329' }}>HelpDesk</span>
+        </div>
+
+        <h2 style={{ fontSize: '1.5rem', fontWeight: 800, textAlign: 'center', marginBottom: '0.25rem' }}>
+          Create Customer Account
+        </h2>
+        <p style={{ fontSize: '0.875rem', color: '#64748b', textAlign: 'center', marginBottom: '1.25rem' }}>
+          Register as a customer to submit and track support tickets.
+        </p>
+
+        {/* Pre-defined Agent Notice matching user requirement */}
+        <div style={{
+          display: 'flex',
+          alignItems: 'center',
+          gap: '0.5rem',
+          padding: '0.6rem 0.85rem',
+          background: '#f1f5f9',
+          border: '1px solid #cbd5e1',
+          borderRadius: '8px',
+          fontSize: '0.775rem',
+          color: '#475569',
+          marginBottom: '1.5rem'
+        }}>
+          <ShieldAlert size={16} color="#0284c7" />
+          <span>Note: Support Agents are pre-configured system accounts.</span>
         </div>
 
         {error && (
-          <div className="alert alert-danger">
-            <AlertCircle size={18} />
+          <div className="alert alert-danger" style={{ marginBottom: '1rem', fontSize: '0.85rem' }}>
+            <AlertCircle size={16} />
             <span>{error}</span>
           </div>
         )}
 
         {success && (
-          <div className="alert alert-success">
-            <CheckCircle2 size={18} />
+          <div className="alert alert-success" style={{ marginBottom: '1rem', fontSize: '0.85rem' }}>
+            <CheckCircle2 size={16} />
             <span>{success}</span>
           </div>
         )}
 
-        <form onSubmit={handleSubmit} className="auth-form">
-          <div className="form-group">
-            <label htmlFor="register-name">Full Name</label>
-            <div className="input-with-icon">
-              <User className="input-icon" size={18} />
-              <input
-                id="register-name"
-                type="text"
-                className="form-control"
-                placeholder="Jane Smith"
-                value={name}
-                onChange={(e) => setName(e.target.value)}
-                required
-              />
-            </div>
+        <form onSubmit={handleSubmit}>
+          <div className="form-group-field">
+            <label htmlFor="reg-name">Full name</label>
+            <input
+              id="reg-name"
+              type="text"
+              className="form-input-control"
+              placeholder="John Doe"
+              value={name}
+              onChange={(e) => setName(e.target.value)}
+              required
+            />
           </div>
 
-          <div className="form-group">
-            <label htmlFor="register-email">Email Address</label>
-            <div className="input-with-icon">
-              <Mail className="input-icon" size={18} />
-              <input
-                id="register-email"
-                type="email"
-                className="form-control"
-                placeholder="jane@example.com"
-                value={email}
-                onChange={(e) => setEmail(e.target.value)}
-                required
-              />
-            </div>
+          <div className="form-group-field">
+            <label htmlFor="reg-email">Email address</label>
+            <input
+              id="reg-email"
+              type="email"
+              className="form-input-control"
+              placeholder="you@example.com"
+              value={email}
+              onChange={(e) => setEmail(e.target.value)}
+              required
+            />
           </div>
 
-          <div className="form-group">
-            <label htmlFor="register-password">Password</label>
-            <div className="input-with-icon">
-              <Lock className="input-icon" size={18} />
+          <div className="form-group-field">
+            <label htmlFor="reg-pass">Password</label>
+            <div style={{ position: 'relative' }}>
               <input
-                id="register-password"
-                type="password"
-                className="form-control"
+                id="reg-pass"
+                type={showPassword ? 'text' : 'password'}
+                className="form-input-control"
                 placeholder="Minimum 6 characters"
                 value={password}
                 onChange={(e) => setPassword(e.target.value)}
                 required
               />
+              <button
+                type="button"
+                onClick={() => setShowPassword(!showPassword)}
+                style={{
+                  position: 'absolute',
+                  right: '12px',
+                  top: '50%',
+                  transform: 'translateY(-50%)',
+                  background: 'none',
+                  border: 'none',
+                  color: '#94a3b8',
+                  cursor: 'pointer'
+                }}
+              >
+                {showPassword ? <EyeOff size={18} /> : <Eye size={18} />}
+              </button>
             </div>
           </div>
 
-          <div className="form-group">
-            <label htmlFor="register-confirm-password">Confirm Password</label>
-            <div className="input-with-icon">
-              <Lock className="input-icon" size={18} />
-              <input
-                id="register-confirm-password"
-                type="password"
-                className="form-control"
-                placeholder="Repeat password"
-                value={confirmPassword}
-                onChange={(e) => setConfirmPassword(e.target.value)}
-                required
-              />
-            </div>
-          </div>
-
-          <button
-            type="submit"
-            disabled={submitting}
-            className="btn btn-primary btn-block"
-          >
-            {submitting ? 'Creating Account...' : 'Register'}
-            {!submitting && <ArrowRight size={18} />}
+          <button type="submit" disabled={submitting} className="btn-dark" style={{ width: '100%', marginTop: '1rem' }}>
+            {submitting ? 'Registering Customer Account...' : 'Register'}
           </button>
         </form>
 
-        <div className="auth-footer">
-          <p>
-            Already registered?{' '}
-            <Link to="/login" className="auth-link">
-              Sign In
-            </Link>
-          </p>
+        <div style={{ textAlign: 'center', marginTop: '1.5rem', fontSize: '0.85rem', color: '#64748b' }}>
+          Already have an account?{' '}
+          <Link to="/login" style={{ color: '#0284c7', fontWeight: 700 }}>
+            Login
+          </Link>
         </div>
       </div>
     </div>

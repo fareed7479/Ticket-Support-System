@@ -1,14 +1,13 @@
 import React, { useState, useEffect } from 'react';
-import { useParams, Link, useNavigate } from 'react-router-dom';
+import { useParams, Link } from 'react-router-dom';
 import api from '../services/api';
-import Navbar from '../components/Navbar';
-import StatusBadge from '../components/StatusBadge';
-import PriorityBadge from '../components/PriorityBadge';
-import { ArrowLeft, MessageSquare, Send, Trash2, AlertCircle, Clock, User, ShieldCheck } from 'lucide-react';
+import Sidebar from '../components/Sidebar';
+import { useAuth } from '../context/AuthContext';
+import { ArrowLeft, MessageSquare, AlertCircle } from 'lucide-react';
 
 const TicketDetails = () => {
   const { id } = useParams();
-  const navigate = useNavigate();
+  const { user } = useAuth();
 
   const [ticket, setTicket] = useState(null);
   const [comments, setComments] = useState([]);
@@ -16,38 +15,31 @@ const TicketDetails = () => {
   
   const [loading, setLoading] = useState(true);
   const [submittingComment, setSubmittingComment] = useState(false);
-  const [deleting, setDeleting] = useState(false);
   const [error, setError] = useState('');
   const [commentError, setCommentError] = useState('');
 
-  const fetchTicketAndComments = async () => {
+  const fetchDetails = async () => {
     try {
       setLoading(true);
       setError('');
 
-      const [ticketRes, commentsRes] = await Promise.all([
+      const [tRes, cRes] = await Promise.all([
         api.get(`/tickets/${id}`),
         api.get(`/tickets/${id}/comments`)
       ]);
 
-      setTicket(ticketRes.data);
-      setComments(commentsRes.data);
+      setTicket(tRes.data);
+      setComments(cRes.data);
     } catch (err) {
-      console.error('Error fetching ticket details:', err);
-      if (err.response && err.response.status === 403) {
-        setError('Forbidden: You do not have permission to view this ticket.');
-      } else if (err.response && err.response.status === 404) {
-        setError('Ticket not found.');
-      } else {
-        setError('Failed to load ticket details.');
-      }
+      console.error('Error loading ticket:', err);
+      setError(err.response?.data?.error || 'Failed to load ticket.');
     } finally {
       setLoading(false);
     }
   };
 
   useEffect(() => {
-    fetchTicketAndComments();
+    fetchDetails();
   }, [id]);
 
   const handleAddComment = async (e) => {
@@ -58,46 +50,23 @@ const TicketDetails = () => {
       setSubmittingComment(true);
       setCommentError('');
 
-      const response = await api.post(`/tickets/${id}/comments`, {
-        comment: newComment.trim()
-      });
-
-      setComments((prev) => [...prev, response.data.comment]);
+      const res = await api.post(`/tickets/${id}/comments`, { comment: newComment.trim() });
+      setComments((prev) => [...prev, res.data.comment]);
       setNewComment('');
     } catch (err) {
       console.error('Error posting comment:', err);
-      setCommentError('Failed to post comment. Please try again.');
+      setCommentError('Failed to post comment.');
     } finally {
       setSubmittingComment(false);
     }
   };
 
-  const handleDeleteTicket = async () => {
-    if (!window.confirm('Are you sure you want to delete this ticket? This action cannot be undone.')) {
-      return;
-    }
-
-    try {
-      setDeleting(true);
-      await api.delete(`/tickets/${id}`);
-      navigate('/customer/dashboard');
-    } catch (err) {
-      console.error('Error deleting ticket:', err);
-      alert(err.response?.data?.error || 'Failed to delete ticket');
-    } finally {
-      setDeleting(false);
-    }
-  };
-
   if (loading) {
     return (
-      <div className="app-layout">
-        <Navbar />
-        <main className="main-content">
-          <div className="container loading-state">
-            <div className="spinner"></div>
-            <p>Loading ticket details...</p>
-          </div>
+      <div className="dashboard-layout">
+        <Sidebar />
+        <main className="dashboard-main">
+          <div style={{ textAlign: 'center', padding: '4rem', color: '#64748b' }}>Loading ticket details...</div>
         </main>
       </div>
     );
@@ -105,17 +74,15 @@ const TicketDetails = () => {
 
   if (error || !ticket) {
     return (
-      <div className="app-layout">
-        <Navbar />
-        <main className="main-content">
-          <div className="container container-sm">
-            <Link to="/customer/dashboard" className="back-link">
-              <ArrowLeft size={16} /> Back to Dashboard
-            </Link>
-            <div className="alert alert-danger my-4">
-              <AlertCircle size={18} />
-              <span>{error || 'Ticket not found.'}</span>
-            </div>
+      <div className="dashboard-layout">
+        <Sidebar />
+        <main className="dashboard-main">
+          <Link to="/customer/tickets" style={{ display: 'inline-flex', alignItems: 'center', gap: '0.4rem', color: '#64748b', fontSize: '0.875rem', marginBottom: '1.5rem', fontWeight: 600 }}>
+            <ArrowLeft size={16} /> Back to My Tickets
+          </Link>
+          <div className="alert alert-danger">
+            <AlertCircle size={16} />
+            <span>{error || 'Ticket not found.'}</span>
           </div>
         </main>
       </div>
@@ -123,173 +90,103 @@ const TicketDetails = () => {
   }
 
   return (
-    <div className="app-layout">
-      <Navbar />
+    <div className="dashboard-layout">
+      <Sidebar />
 
-      <main className="main-content">
-        <div className="container">
-          <div className="page-header">
-            <div>
-              <Link to="/customer/dashboard" className="back-link mb-2">
-                <ArrowLeft size={16} /> Back to Dashboard
-              </Link>
-              <div className="ticket-title-row">
-                <h1 className="page-title">{ticket.subject}</h1>
-                <span className="ticket-id-tag">Ticket #{ticket.id}</span>
-              </div>
-            </div>
+      <main className="dashboard-main">
+        {/* Back Link matching Mockup #7 */}
+        <Link to="/customer/tickets" style={{ display: 'inline-flex', alignItems: 'center', gap: '0.4rem', color: '#64748b', fontSize: '0.875rem', marginBottom: '1.25rem', fontWeight: 600 }}>
+          <ArrowLeft size={16} /> Back to My Tickets
+        </Link>
 
-            {ticket.status === 'open' && (
-              <button
-                onClick={handleDeleteTicket}
-                disabled={deleting}
-                className="btn btn-danger-outline btn-sm btn-icon"
-              >
-                <Trash2 size={16} />
-                <span>{deleting ? 'Deleting...' : 'Delete Ticket'}</span>
-              </button>
-            )}
+        {/* Top Header info matching Mockup #7 */}
+        <div style={{ marginBottom: '1.5rem' }}>
+          <span style={{ fontFamily: 'monospace', fontWeight: 700, color: '#64748b', fontSize: '0.9rem' }}>#{ticket.id}</span>
+          <div style={{ display: 'flex', alignItems: 'center', gap: '1rem', marginTop: '0.25rem' }}>
+            <h1 className="welcome-title">{ticket.subject}</h1>
+            <span className={`badge-pill badge-${ticket.status === 'closed' ? 'resolved' : ticket.status}`}>
+              {ticket.status === 'closed' ? 'Resolved' : ticket.status === 'in_progress' ? 'In Progress' : 'Open'}
+            </span>
+          </div>
+          <p style={{ fontSize: '0.85rem', color: '#64748b', marginTop: '0.35rem' }}>
+            Created by you • {new Date(ticket.created_at).toLocaleString()}
+          </p>
+        </div>
+
+        {/* Issue Description Card matching Mockup #7 */}
+        <div className="card-wrapper">
+          <h3 style={{ fontSize: '0.9rem', fontWeight: 700, color: '#0f172a', marginBottom: '0.5rem' }}>Description</h3>
+          <p style={{ color: '#475569', fontSize: '0.925rem', lineHeight: 1.6, whitespace: 'pre-wrap' }}>
+            {ticket.description}
+          </p>
+        </div>
+
+        {/* Comments Section matching Mockup #7 */}
+        <div className="card-wrapper">
+          <h3 style={{ fontSize: '1rem', fontWeight: 700, color: '#0f172a', marginBottom: '1.25rem' }}>
+            Comments ({comments.length})
+          </h3>
+
+          <div style={{ display: 'flex', flexDirection: 'column', gap: '1.25rem' }}>
+            {comments.map((c) => {
+              const isAgent = c.user_role === 'agent';
+              return (
+                <div key={c.id} style={{
+                  display: 'flex',
+                  gap: '1rem',
+                  padding: '1rem',
+                  borderRadius: '12px',
+                  background: isAgent ? '#f8fafc' : '#ffffff',
+                  border: '1px solid #e2e8f0'
+                }}>
+                  <div className="user-avatar-circle" style={{ background: isAgent ? '#0b1329' : '#cbd5e1', color: isAgent ? '#ffffff' : '#0f172a', flexShrink: 0 }}>
+                    {c.user_name ? c.user_name.substring(0, 2).toUpperCase() : 'U'}
+                  </div>
+                  <div>
+                    <div style={{ display: 'flex', alignItems: 'center', gap: '0.6rem', marginBottom: '0.25rem' }}>
+                      <strong style={{ fontSize: '0.9rem', color: '#0f172a' }}>{c.user_name}</strong>
+                      {isAgent && (
+                        <span className="badge-pill" style={{ background: '#0b1329', color: '#ffffff', fontSize: '0.7rem' }}>
+                          Support Agent
+                        </span>
+                      )}
+                      <span style={{ fontSize: '0.775rem', color: '#94a3b8' }}>
+                        {new Date(c.created_at).toLocaleString()}
+                      </span>
+                    </div>
+                    <p style={{ fontSize: '0.9rem', color: '#475569', lineHeight: 1.5 }}>
+                      {c.comment}
+                    </p>
+                  </div>
+                </div>
+              );
+            })}
           </div>
 
-          <div className="ticket-details-grid">
-            {/* Left Main Section: Details + Comments */}
-            <div className="ticket-main-section">
-              <div className="card">
-                <div className="card-header border-bottom">
-                  <h3>Issue Description</h3>
-                </div>
-                <div className="card-body">
-                  <p className="ticket-description-text">{ticket.description}</p>
-                </div>
+          {/* Add Comment Input Form */}
+          <div style={{ marginTop: '1.75rem', paddingTop: '1.5rem', borderTop: '1px solid #e2e8f0' }}>
+            {commentError && (
+              <div className="alert alert-danger" style={{ marginBottom: '1rem' }}>
+                <AlertCircle size={16} />
+                <span>{commentError}</span>
               </div>
-
-              {/* Comments Section */}
-              <div className="card comments-card">
-                <div className="card-header border-bottom">
-                  <div className="comments-header-title">
-                    <MessageSquare size={20} />
-                    <h3>Discussion & Activity ({comments.length})</h3>
-                  </div>
-                </div>
-
-                <div className="card-body">
-                  {comments.length === 0 ? (
-                    <div className="empty-comments">
-                      <p>No comments posted yet. Add a message below if you have additional info.</p>
-                    </div>
-                  ) : (
-                    <div className="comments-list">
-                      {comments.map((c) => {
-                        const isAgent = c.user_role === 'agent';
-                        return (
-                          <div
-                            key={c.id}
-                            className={`comment-bubble ${isAgent ? 'comment-agent' : 'comment-customer'}`}
-                          >
-                            <div className="comment-header">
-                              <div className="comment-author-info">
-                                <span className="comment-author-name">{c.user_name}</span>
-                                <span className={`comment-role-tag ${isAgent ? 'tag-agent' : 'tag-customer'}`}>
-                                  {isAgent ? (
-                                    <>
-                                      <ShieldCheck size={12} /> Support Agent
-                                    </>
-                                  ) : (
-                                    <>
-                                      <User size={12} /> Customer
-                                    </>
-                                  )}
-                                </span>
-                              </div>
-                              <span className="comment-time">
-                                {new Date(c.created_at).toLocaleString()}
-                              </span>
-                            </div>
-                            <div className="comment-body">
-                              <p>{c.comment}</p>
-                            </div>
-                          </div>
-                        );
-                      })}
-                    </div>
-                  )}
-
-                  {/* Add Comment Form */}
-                  <div className="add-comment-wrapper mt-4">
-                    {commentError && (
-                      <div className="alert alert-danger mb-3">
-                        <AlertCircle size={16} />
-                        <span>{commentError}</span>
-                      </div>
-                    )}
-                    <form onSubmit={handleAddComment}>
-                      <div className="form-group">
-                        <label htmlFor="customer-comment">Add a response</label>
-                        <textarea
-                          id="customer-comment"
-                          className="form-control textarea"
-                          rows={3}
-                          placeholder="Type your message here..."
-                          value={newComment}
-                          onChange={(e) => setNewComment(e.target.value)}
-                          required
-                        />
-                      </div>
-                      <div className="form-actions align-right">
-                        <button
-                          type="submit"
-                          disabled={submittingComment || !newComment.trim()}
-                          className="btn btn-primary btn-sm btn-icon"
-                        >
-                          <Send size={14} />
-                          <span>{submittingComment ? 'Sending...' : 'Post Message'}</span>
-                        </button>
-                      </div>
-                    </form>
-                  </div>
-                </div>
+            )}
+            <form onSubmit={handleAddComment}>
+              <textarea
+                className="form-input-control"
+                rows={3}
+                placeholder="Add a comment..."
+                value={newComment}
+                onChange={(e) => setNewComment(e.target.value)}
+                style={{ marginBottom: '1rem', resize: 'vertical' }}
+                required
+              />
+              <div style={{ display: 'flex', justifyContent: 'flex-end' }}>
+                <button type="submit" disabled={submittingComment || !newComment.trim()} className="btn-dark">
+                  {submittingComment ? 'Posting...' : 'Comment'}
+                </button>
               </div>
-            </div>
-
-            {/* Right Sidebar Metadata Card */}
-            <div className="ticket-sidebar">
-              <div className="card meta-card">
-                <div className="card-header border-bottom">
-                  <h4>Ticket Metadata</h4>
-                </div>
-                <div className="meta-list">
-                  <div className="meta-item">
-                    <span className="meta-label">Status</span>
-                    <StatusBadge status={ticket.status} />
-                  </div>
-
-                  <div className="meta-item">
-                    <span className="meta-label">Priority</span>
-                    <PriorityBadge priority={ticket.priority} />
-                  </div>
-
-                  <div className="meta-item">
-                    <span className="meta-label">Created At</span>
-                    <span className="meta-value">
-                      <Clock size={14} /> {new Date(ticket.created_at).toLocaleString()}
-                    </span>
-                  </div>
-
-                  <div className="meta-item">
-                    <span className="meta-label">Assigned Agent</span>
-                    <span className="meta-value">
-                      {ticket.assigned_agent_name ? (
-                        <>
-                          <ShieldCheck size={14} /> {ticket.assigned_agent_name}
-                        </>
-                      ) : (
-                        <em>Unassigned</em>
-                      )}
-                    </span>
-                  </div>
-                </div>
-              </div>
-            </div>
+            </form>
           </div>
         </div>
       </main>

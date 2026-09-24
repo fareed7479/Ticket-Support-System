@@ -3,34 +3,36 @@ import { Link } from 'react-router-dom';
 import api from '../services/api';
 import Sidebar from '../components/Sidebar';
 import { useAuth } from '../context/AuthContext';
-import { ArrowRight } from 'lucide-react';
+import { Search } from 'lucide-react';
 
-const CustomerDashboard = () => {
+const CustomerTickets = () => {
   const { user } = useAuth();
   const [tickets, setTickets] = useState([]);
   const [loading, setLoading] = useState(true);
+  const [search, setSearch] = useState('');
+  const [statusFilter, setStatusFilter] = useState('');
+  const [priorityFilter, setPriorityFilter] = useState('');
+
+  const fetchTickets = async () => {
+    try {
+      setLoading(true);
+      const params = {};
+      if (statusFilter) params.status = statusFilter;
+      if (priorityFilter) params.priority = priorityFilter;
+      if (search.trim()) params.search = search.trim();
+
+      const response = await api.get('/tickets', { params });
+      setTickets(response.data);
+    } catch (err) {
+      console.error('Error fetching customer tickets:', err);
+    } finally {
+      setLoading(false);
+    }
+  };
 
   useEffect(() => {
-    const fetchTickets = async () => {
-      try {
-        setLoading(true);
-        const response = await api.get('/tickets');
-        setTickets(response.data);
-      } catch (err) {
-        console.error('Error fetching tickets:', err);
-      } finally {
-        setLoading(false);
-      }
-    };
     fetchTickets();
-  }, []);
-
-  const totalCount = tickets.length;
-  const openCount = tickets.filter(t => t.status === 'open').length;
-  const progressCount = tickets.filter(t => t.status === 'in_progress').length;
-  const resolvedCount = tickets.filter(t => t.status === 'closed').length;
-
-  const recentTickets = tickets.slice(0, 5);
+  }, [statusFilter, priorityFilter, search]);
 
   return (
     <div className="dashboard-layout">
@@ -40,8 +42,8 @@ const CustomerDashboard = () => {
         {/* Top Header */}
         <div className="top-header">
           <div>
-            <h1 className="welcome-title">Welcome back, {user?.name?.split(' ')[0] || 'John'} 👋</h1>
-            <p className="welcome-subtitle">Here's an overview of your support tickets.</p>
+            <h1 className="welcome-title">My Tickets</h1>
+            <p className="welcome-subtitle">View and manage your support tickets.</p>
           </div>
 
           <div className="header-user-profile">
@@ -55,43 +57,47 @@ const CustomerDashboard = () => {
           </div>
         </div>
 
-        {/* Stats Cards Row matching Mockup #4 */}
-        <div className="stats-cards-grid">
-          <div className="stat-card-item">
-            <div className="stat-card-title">Total Tickets</div>
-            <div className="stat-card-number">{totalCount}</div>
+        {/* Search & Filters Bar matching Mockup #6 */}
+        <div className="filter-bar-flex">
+          <div className="search-input-box">
+            <Search className="search-icon" size={16} />
+            <input
+              type="text"
+              placeholder="Search tickets..."
+              value={search}
+              onChange={(e) => setSearch(e.target.value)}
+            />
           </div>
 
-          <div className="stat-card-item stat-card-open">
-            <div className="stat-card-title">Open</div>
-            <div className="stat-card-number">{openCount}</div>
-          </div>
+          <select
+            className="select-filter-control"
+            value={statusFilter}
+            onChange={(e) => setStatusFilter(e.target.value)}
+          >
+            <option value="">All Status</option>
+            <option value="open">Open</option>
+            <option value="in_progress">In Progress</option>
+            <option value="closed">Resolved</option>
+          </select>
 
-          <div className="stat-card-item stat-card-progress">
-            <div className="stat-card-title">In Progress</div>
-            <div className="stat-card-number">{progressCount}</div>
-          </div>
-
-          <div className="stat-card-item stat-card-resolved">
-            <div className="stat-card-title">Resolved</div>
-            <div className="stat-card-number">{resolvedCount}</div>
-          </div>
+          <select
+            className="select-filter-control"
+            value={priorityFilter}
+            onChange={(e) => setPriorityFilter(e.target.value)}
+          >
+            <option value="">All Priority</option>
+            <option value="high">High</option>
+            <option value="medium">Medium</option>
+            <option value="low">Low</option>
+          </select>
         </div>
 
-        {/* Recent Tickets Table matching Mockup #4 */}
+        {/* Tickets Table Card matching Mockup #6 */}
         <div className="card-wrapper">
-          <div className="card-header-flex">
-            <h2 className="card-title-text">Recent Tickets</h2>
-            <Link to="/customer/tickets" style={{ fontSize: '0.85rem', fontWeight: 700, color: '#0284c7', display: 'flex', alignItems: 'center', gap: '0.25rem' }}>
-              <span>View all</span>
-              <ArrowRight size={14} />
-            </Link>
-          </div>
-
           {loading ? (
-            <div style={{ textAlign: 'center', padding: '2rem', color: '#64748b' }}>Loading tickets...</div>
-          ) : recentTickets.length === 0 ? (
-            <div style={{ textAlign: 'center', padding: '2rem', color: '#64748b' }}>No recent tickets.</div>
+            <div style={{ textAlign: 'center', padding: '3rem', color: '#64748b' }}>Loading tickets...</div>
+          ) : tickets.length === 0 ? (
+            <div style={{ textAlign: 'center', padding: '3rem', color: '#64748b' }}>No tickets found matching criteria.</div>
           ) : (
             <div className="table-responsive">
               <table className="helpdesk-table">
@@ -105,7 +111,7 @@ const CustomerDashboard = () => {
                   </tr>
                 </thead>
                 <tbody>
-                  {recentTickets.map((t) => (
+                  {tickets.map((t) => (
                     <tr key={t.id}>
                       <td className="cell-id">#{t.id}</td>
                       <td className="cell-subject">
@@ -136,4 +142,4 @@ const CustomerDashboard = () => {
   );
 };
 
-export default CustomerDashboard;
+export default CustomerTickets;

@@ -1,57 +1,52 @@
 import React, { useState, useEffect } from 'react';
-import { useParams, Link, useNavigate } from 'react-router-dom';
+import { useParams, Link } from 'react-router-dom';
 import api from '../services/api';
-import Navbar from '../components/Navbar';
-import StatusBadge from '../components/StatusBadge';
-import PriorityBadge from '../components/PriorityBadge';
-import { ArrowLeft, MessageSquare, Send, Save, AlertCircle, Clock, User, ShieldCheck, CheckCircle2 } from 'lucide-react';
+import Sidebar from '../components/Sidebar';
+import { useAuth } from '../context/AuthContext';
+import { ArrowLeft, AlertCircle, CheckCircle2 } from 'lucide-react';
 
 const AgentTicketDetails = () => {
   const { id } = useParams();
-  const navigate = useNavigate();
+  const { user } = useAuth();
 
   const [ticket, setTicket] = useState(null);
   const [comments, setComments] = useState([]);
   const [agents, setAgents] = useState([]);
+  const [activeTab, setActiveTab] = useState('details'); // 'details', 'comments', 'activity'
 
-  // Form edit states
   const [status, setStatus] = useState('open');
   const [priority, setPriority] = useState('medium');
   const [assignedTo, setAssignedTo] = useState('');
-  
   const [newComment, setNewComment] = useState('');
 
   const [loading, setLoading] = useState(true);
   const [savingUpdate, setSavingUpdate] = useState(false);
   const [submittingComment, setSubmittingComment] = useState(false);
-  
   const [error, setError] = useState('');
-  const [updateMessage, setUpdateMessage] = useState('');
-  const [commentError, setCommentError] = useState('');
+  const [updateMsg, setUpdateMsg] = useState('');
 
   const fetchData = async () => {
     try {
       setLoading(true);
       setError('');
 
-      const [ticketRes, commentsRes, agentsRes] = await Promise.all([
+      const [tRes, cRes, aRes] = await Promise.all([
         api.get(`/tickets/${id}`),
         api.get(`/tickets/${id}/comments`),
-        api.get('/users') // Agent dropdown list
+        api.get('/users')
       ]);
 
-      const ticketData = ticketRes.data;
-      setTicket(ticketData);
-      setComments(commentsRes.data);
-      setAgents(agentsRes.data);
+      const tData = tRes.data;
+      setTicket(tData);
+      setComments(cRes.data);
+      setAgents(aRes.data);
 
-      // Initialize edit fields
-      setStatus(ticketData.status);
-      setPriority(ticketData.priority);
-      setAssignedTo(ticketData.assigned_to ? String(ticketData.assigned_to) : '');
+      setStatus(tData.status);
+      setPriority(tData.priority);
+      setAssignedTo(tData.assigned_to ? String(tData.assigned_to) : '');
     } catch (err) {
-      console.error('Error loading ticket details for agent:', err);
-      setError(err.response?.data?.error || 'Failed to load ticket details.');
+      console.error('Error fetching ticket for agent:', err);
+      setError(err.response?.data?.error || 'Failed to load ticket.');
     } finally {
       setLoading(false);
     }
@@ -65,7 +60,7 @@ const AgentTicketDetails = () => {
     e.preventDefault();
     try {
       setSavingUpdate(true);
-      setUpdateMessage('');
+      setUpdateMsg('');
       setError('');
 
       const payload = {
@@ -74,13 +69,13 @@ const AgentTicketDetails = () => {
         assigned_to: assignedTo ? parseInt(assignedTo, 10) : null
       };
 
-      const response = await api.put(`/tickets/${id}`, payload);
-      setTicket(response.data.ticket);
-      setUpdateMessage('Ticket updated successfully!');
-      setTimeout(() => setUpdateMessage(''), 3000);
+      const res = await api.put(`/tickets/${id}`, payload);
+      setTicket(res.data.ticket);
+      setUpdateMsg('Ticket actions updated!');
+      setTimeout(() => setUpdateMsg(''), 3000);
     } catch (err) {
       console.error('Error updating ticket:', err);
-      setError(err.response?.data?.error || 'Failed to update ticket');
+      setError(err.response?.data?.error || 'Failed to update ticket.');
     } finally {
       setSavingUpdate(false);
     }
@@ -92,17 +87,12 @@ const AgentTicketDetails = () => {
 
     try {
       setSubmittingComment(true);
-      setCommentError('');
-
-      const response = await api.post(`/tickets/${id}/comments`, {
-        comment: newComment.trim()
-      });
-
-      setComments((prev) => [...prev, response.data.comment]);
+      const res = await api.post(`/tickets/${id}/comments`, { comment: newComment.trim() });
+      setComments((prev) => [...prev, res.data.comment]);
       setNewComment('');
     } catch (err) {
-      console.error('Error posting agent response:', err);
-      setCommentError('Failed to post comment. Please try again.');
+      console.error('Error adding comment:', err);
+      alert('Failed to post reply.');
     } finally {
       setSubmittingComment(false);
     }
@@ -110,13 +100,10 @@ const AgentTicketDetails = () => {
 
   if (loading) {
     return (
-      <div className="app-layout">
-        <Navbar />
-        <main className="main-content">
-          <div className="container loading-state">
-            <div className="spinner"></div>
-            <p>Loading agent workspace...</p>
-          </div>
+      <div className="dashboard-layout">
+        <Sidebar />
+        <main className="dashboard-main">
+          <div style={{ textAlign: 'center', padding: '4rem', color: '#64748b' }}>Loading agent workspace...</div>
         </main>
       </div>
     );
@@ -124,17 +111,15 @@ const AgentTicketDetails = () => {
 
   if (error && !ticket) {
     return (
-      <div className="app-layout">
-        <Navbar />
-        <main className="main-content">
-          <div className="container container-sm">
-            <Link to="/agent/dashboard" className="back-link">
-              <ArrowLeft size={16} /> Back to Agent Dashboard
-            </Link>
-            <div className="alert alert-danger my-4">
-              <AlertCircle size={18} />
-              <span>{error}</span>
-            </div>
+      <div className="dashboard-layout">
+        <Sidebar />
+        <main className="dashboard-main">
+          <Link to="/agent/tickets" style={{ display: 'inline-flex', alignItems: 'center', gap: '0.4rem', color: '#64748b', fontSize: '0.875rem', marginBottom: '1.5rem', fontWeight: 600 }}>
+            <ArrowLeft size={16} /> Back to All Tickets
+          </Link>
+          <div className="alert alert-danger">
+            <AlertCircle size={16} />
+            <span>{error}</span>
           </div>
         </main>
       </div>
@@ -142,226 +127,236 @@ const AgentTicketDetails = () => {
   }
 
   return (
-    <div className="app-layout">
-      <Navbar />
+    <div className="dashboard-layout">
+      <Sidebar />
 
-      <main className="main-content">
-        <div className="container">
-          <div className="page-header">
-            <div>
-              <Link to="/agent/dashboard" className="back-link mb-2">
-                <ArrowLeft size={16} /> Back to Queue
-              </Link>
-              <div className="ticket-title-row">
-                <h1 className="page-title">{ticket.subject}</h1>
-                <span className="ticket-id-tag">Ticket #{ticket.id}</span>
+      <main className="dashboard-main">
+        {/* Back Link matching Mockup #10 */}
+        <Link to="/agent/tickets" style={{ display: 'inline-flex', alignItems: 'center', gap: '0.4rem', color: '#64748b', fontSize: '0.875rem', marginBottom: '1.25rem', fontWeight: 600 }}>
+          <ArrowLeft size={16} /> Back to All Tickets
+        </Link>
+
+        {/* Ticket Header matching Mockup #10 */}
+        <div style={{ marginBottom: '1.5rem' }}>
+          <span style={{ fontFamily: 'monospace', fontWeight: 700, color: '#64748b', fontSize: '0.9rem' }}>#{ticket.id}</span>
+          <div style={{ display: 'flex', alignItems: 'center', gap: '1rem', marginTop: '0.25rem', flexWrap: 'wrap' }}>
+            <h1 className="welcome-title">{ticket.subject}</h1>
+            <span className={`badge-pill badge-${ticket.priority.toLowerCase()}`}>
+              {ticket.priority.charAt(0).toUpperCase() + ticket.priority.slice(1)}
+            </span>
+            <span className={`badge-pill badge-${ticket.status === 'closed' ? 'resolved' : ticket.status}`}>
+              {ticket.status === 'closed' ? 'Resolved' : ticket.status === 'in_progress' ? 'In Progress' : 'Open'}
+            </span>
+          </div>
+          <p style={{ fontSize: '0.85rem', color: '#64748b', marginTop: '0.35rem' }}>
+            Customer: <strong style={{ color: '#0f172a' }}>{ticket.customer_name}</strong> • Assigned to: <strong style={{ color: '#0f172a' }}>{ticket.assigned_agent_name || 'Unassigned'}</strong>
+          </p>
+        </div>
+
+        {/* Tab Navigation matching Mockup #10 */}
+        <div style={{ display: 'flex', gap: '1.5rem', borderBottom: '1px solid #e2e8f0', marginBottom: '1.5rem' }}>
+          <button
+            onClick={() => setActiveTab('details')}
+            style={{
+              padding: '0.65rem 0',
+              border: 'none',
+              background: 'none',
+              fontWeight: 700,
+              fontSize: '0.9rem',
+              color: activeTab === 'details' ? '#0b1329' : '#64748b',
+              borderBottom: activeTab === 'details' ? '2px solid #0b1329' : '2px solid transparent',
+              cursor: 'pointer'
+            }}
+          >
+            Details
+          </button>
+
+          <button
+            onClick={() => setActiveTab('comments')}
+            style={{
+              padding: '0.65rem 0',
+              border: 'none',
+              background: 'none',
+              fontWeight: 700,
+              fontSize: '0.9rem',
+              color: activeTab === 'comments' ? '#0b1329' : '#64748b',
+              borderBottom: activeTab === 'comments' ? '2px solid #0b1329' : '2px solid transparent',
+              cursor: 'pointer'
+            }}
+          >
+            Comments ({comments.length})
+          </button>
+
+          <button
+            onClick={() => setActiveTab('activity')}
+            style={{
+              padding: '0.65rem 0',
+              border: 'none',
+              background: 'none',
+              fontWeight: 700,
+              fontSize: '0.9rem',
+              color: activeTab === 'activity' ? '#0b1329' : '#64748b',
+              borderBottom: activeTab === 'activity' ? '2px solid #0b1329' : '2px solid transparent',
+              cursor: 'pointer'
+            }}
+          >
+            Activity
+          </button>
+        </div>
+
+        {/* Details & Actions Grid matching Mockup #10 */}
+        <div style={{ display: 'grid', gridTemplateColumns: '1fr 300px', gap: '1.5rem' }}>
+          {/* Main Panel */}
+          <div>
+            {activeTab === 'details' && (
+              <div className="card-wrapper">
+                <h3 style={{ fontSize: '0.9rem', fontWeight: 700, color: '#0f172a', marginBottom: '0.5rem' }}>Description</h3>
+                <p style={{ color: '#475569', fontSize: '0.925rem', lineHeight: 1.6, whitespace: 'pre-wrap' }}>
+                  {ticket.description}
+                </p>
               </div>
-            </div>
+            )}
+
+            {(activeTab === 'details' || activeTab === 'comments') && (
+              <div className="card-wrapper">
+                <h3 style={{ fontSize: '1rem', fontWeight: 700, color: '#0f172a', marginBottom: '1.25rem' }}>
+                  Discussion History ({comments.length})
+                </h3>
+
+                <div style={{ display: 'flex', flexDirection: 'column', gap: '1.25rem' }}>
+                  {comments.map((c) => {
+                    const isAgent = c.user_role === 'agent';
+                    return (
+                      <div key={c.id} style={{
+                        display: 'flex',
+                        gap: '1rem',
+                        padding: '1rem',
+                        borderRadius: '12px',
+                        background: isAgent ? '#f8fafc' : '#ffffff',
+                        border: '1px solid #e2e8f0'
+                      }}>
+                        <div className="user-avatar-circle" style={{ background: isAgent ? '#0b1329' : '#cbd5e1', color: isAgent ? '#ffffff' : '#0f172a', flexShrink: 0 }}>
+                          {c.user_name ? c.user_name.substring(0, 2).toUpperCase() : 'U'}
+                        </div>
+                        <div>
+                          <div style={{ display: 'flex', alignItems: 'center', gap: '0.6rem', marginBottom: '0.25rem' }}>
+                            <strong style={{ fontSize: '0.9rem', color: '#0f172a' }}>{c.user_name}</strong>
+                            {isAgent && (
+                              <span className="badge-pill" style={{ background: '#0b1329', color: '#ffffff', fontSize: '0.7rem' }}>
+                                Support Agent
+                              </span>
+                            )}
+                            <span style={{ fontSize: '0.775rem', color: '#94a3b8' }}>
+                              {new Date(c.created_at).toLocaleString()}
+                            </span>
+                          </div>
+                          <p style={{ fontSize: '0.9rem', color: '#475569', lineHeight: 1.5 }}>
+                            {c.comment}
+                          </p>
+                        </div>
+                      </div>
+                    );
+                  })}
+                </div>
+
+                {/* Add Agent Reply */}
+                <div style={{ marginTop: '1.75rem', paddingTop: '1.5rem', borderTop: '1px solid #e2e8f0' }}>
+                  <form onSubmit={handleAddComment}>
+                    <textarea
+                      className="form-input-control"
+                      rows={3}
+                      placeholder="Add an agent response..."
+                      value={newComment}
+                      onChange={(e) => setNewComment(e.target.value)}
+                      style={{ marginBottom: '1rem', resize: 'vertical' }}
+                      required
+                    />
+                    <div style={{ display: 'flex', justifyContent: 'flex-end' }}>
+                      <button type="submit" disabled={submittingComment || !newComment.trim()} className="btn-dark">
+                        {submittingComment ? 'Sending Reply...' : 'Post Reply'}
+                      </button>
+                    </div>
+                  </form>
+                </div>
+              </div>
+            )}
+
+            {activeTab === 'activity' && (
+              <div className="card-wrapper">
+                <h3 style={{ fontSize: '1rem', fontWeight: 700, color: '#0f172a', marginBottom: '1rem' }}>Audit Log & Activity</h3>
+                <p style={{ fontSize: '0.875rem', color: '#64748b' }}>
+                  • Ticket created at {new Date(ticket.created_at).toLocaleString()}<br />
+                  • Last updated at {new Date(ticket.updated_at).toLocaleString()}
+                </p>
+              </div>
+            )}
           </div>
 
-          <div className="ticket-details-grid">
-            {/* Main Column: Ticket Body & Comments */}
-            <div className="ticket-main-section">
-              <div className="card">
-                <div className="card-header border-bottom flex-between">
-                  <h3>Customer Issue Description</h3>
-                  <div className="customer-info-pill">
-                    <User size={14} /> {ticket.customer_name} ({ticket.customer_email})
-                  </div>
+          {/* Ticket Actions Box matching Mockup #10 */}
+          <div>
+            <div className="card-wrapper">
+              <h3 style={{ fontSize: '1rem', fontWeight: 700, color: '#0f172a', marginBottom: '1.25rem' }}>Ticket Actions</h3>
+
+              {updateMsg && (
+                <div className="alert alert-success" style={{ marginBottom: '1rem', fontSize: '0.8rem' }}>
+                  <CheckCircle2 size={14} />
+                  <span>{updateMsg}</span>
                 </div>
-                <div className="card-body">
-                  <p className="ticket-description-text">{ticket.description}</p>
-                </div>
-              </div>
+              )}
 
-              {/* Conversation Section */}
-              <div className="card comments-card">
-                <div className="card-header border-bottom">
-                  <div className="comments-header-title">
-                    <MessageSquare size={20} />
-                    <h3>Discussion & Support History ({comments.length})</h3>
-                  </div>
-                </div>
-
-                <div className="card-body">
-                  {comments.length === 0 ? (
-                    <div className="empty-comments">
-                      <p>No messages in this thread yet. Send a response to assist the customer.</p>
-                    </div>
-                  ) : (
-                    <div className="comments-list">
-                      {comments.map((c) => {
-                        const isAgent = c.user_role === 'agent';
-                        return (
-                          <div
-                            key={c.id}
-                            className={`comment-bubble ${isAgent ? 'comment-agent' : 'comment-customer'}`}
-                          >
-                            <div className="comment-header">
-                              <div className="comment-author-info">
-                                <span className="comment-author-name">{c.user_name}</span>
-                                <span className={`comment-role-tag ${isAgent ? 'tag-agent' : 'tag-customer'}`}>
-                                  {isAgent ? (
-                                    <>
-                                      <ShieldCheck size={12} /> Support Agent
-                                    </>
-                                  ) : (
-                                    <>
-                                      <User size={12} /> Customer
-                                    </>
-                                  )}
-                                </span>
-                              </div>
-                              <span className="comment-time">
-                                {new Date(c.created_at).toLocaleString()}
-                              </span>
-                            </div>
-                            <div className="comment-body">
-                              <p>{c.comment}</p>
-                            </div>
-                          </div>
-                        );
-                      })}
-                    </div>
-                  )}
-
-                  {/* Add Agent Comment / Reply */}
-                  <div className="add-comment-wrapper mt-4">
-                    {commentError && (
-                      <div className="alert alert-danger mb-3">
-                        <AlertCircle size={16} />
-                        <span>{commentError}</span>
-                      </div>
-                    )}
-                    <form onSubmit={handleAddComment}>
-                      <div className="form-group">
-                        <label htmlFor="agent-response">Send Official Agent Response</label>
-                        <textarea
-                          id="agent-response"
-                          className="form-control textarea"
-                          rows={4}
-                          placeholder="Type your reply to the customer..."
-                          value={newComment}
-                          onChange={(e) => setNewComment(e.target.value)}
-                          required
-                        />
-                      </div>
-                      <div className="form-actions align-right">
-                        <button
-                          type="submit"
-                          disabled={submittingComment || !newComment.trim()}
-                          className="btn btn-primary btn-sm btn-icon"
-                        >
-                          <Send size={14} />
-                          <span>{submittingComment ? 'Submitting Reply...' : 'Post Reply'}</span>
-                        </button>
-                      </div>
-                    </form>
-                  </div>
-                </div>
-              </div>
-            </div>
-
-            {/* Sidebar: Agent Control Panel */}
-            <div className="ticket-sidebar">
-              <div className="card agent-control-card">
-                <div className="card-header border-bottom">
-                  <h4>Management Controls</h4>
-                </div>
-
-                {updateMessage && (
-                  <div className="alert alert-success my-2">
-                    <CheckCircle2 size={16} />
-                    <span>{updateMessage}</span>
-                  </div>
-                )}
-
-                {error && (
-                  <div className="alert alert-danger my-2">
-                    <AlertCircle size={16} />
-                    <span>{error}</span>
-                  </div>
-                )}
-
-                <form onSubmit={handleUpdateTicket} className="card-body">
-                  <div className="form-group">
-                    <label htmlFor="agent-status-select">Status</label>
-                    <select
-                      id="agent-status-select"
-                      className="form-control"
-                      value={status}
-                      onChange={(e) => setStatus(e.target.value)}
-                    >
-                      <option value="open">Open</option>
-                      <option value="in_progress">In Progress</option>
-                      <option value="closed">Closed</option>
-                    </select>
-                  </div>
-
-                  <div className="form-group">
-                    <label htmlFor="agent-priority-select">Priority</label>
-                    <select
-                      id="agent-priority-select"
-                      className="form-control"
-                      value={priority}
-                      onChange={(e) => setPriority(e.target.value)}
-                    >
-                      <option value="low">Low</option>
-                      <option value="medium">Medium</option>
-                      <option value="high">High</option>
-                    </select>
-                  </div>
-
-                  <div className="form-group">
-                    <label htmlFor="agent-assignee-select">Assigned Support Agent</label>
-                    <select
-                      id="agent-assignee-select"
-                      className="form-control"
-                      value={assignedTo}
-                      onChange={(e) => setAssignedTo(e.target.value)}
-                    >
-                      <option value="">Unassigned</option>
-                      {agents.map((ag) => (
-                        <option key={ag.id} value={ag.id}>
-                          {ag.name} ({ag.email})
-                        </option>
-                      ))}
-                    </select>
-                  </div>
-
-                  <button
-                    type="submit"
-                    disabled={savingUpdate}
-                    className="btn btn-primary btn-block btn-icon mt-3"
+              <form onSubmit={handleUpdateTicket}>
+                <div className="form-group-field">
+                  <label htmlFor="act-status">Change Status</label>
+                  <select
+                    id="act-status"
+                    className="select-filter-control"
+                    style={{ width: '100%' }}
+                    value={status}
+                    onChange={(e) => setStatus(e.target.value)}
                   >
-                    <Save size={16} />
-                    <span>{savingUpdate ? 'Saving Changes...' : 'Save Ticket Changes'}</span>
-                  </button>
-                </form>
-              </div>
+                    <option value="open">Open</option>
+                    <option value="in_progress">In Progress</option>
+                    <option value="closed">Resolved</option>
+                  </select>
+                </div>
 
-              {/* Info Snapshot Card */}
-              <div className="card meta-card mt-4">
-                <div className="card-header border-bottom">
-                  <h4>Information Snapshot</h4>
+                <div className="form-group-field">
+                  <label htmlFor="act-priority">Change Priority</label>
+                  <select
+                    id="act-priority"
+                    className="select-filter-control"
+                    style={{ width: '100%' }}
+                    value={priority}
+                    onChange={(e) => setPriority(e.target.value)}
+                  >
+                    <option value="low">Low</option>
+                    <option value="medium">Medium</option>
+                    <option value="high">High</option>
+                  </select>
                 </div>
-                <div className="meta-list">
-                  <div className="meta-item">
-                    <span className="meta-label">Current Status</span>
-                    <StatusBadge status={ticket.status} />
-                  </div>
-                  <div className="meta-item">
-                    <span className="meta-label">Current Priority</span>
-                    <PriorityBadge priority={ticket.priority} />
-                  </div>
-                  <div className="meta-item">
-                    <span className="meta-label">Created Date</span>
-                    <span className="meta-value">
-                      <Clock size={14} /> {new Date(ticket.created_at).toLocaleString()}
-                    </span>
-                  </div>
+
+                <div className="form-group-field">
+                  <label htmlFor="act-assign">Assign to Agent</label>
+                  <select
+                    id="act-assign"
+                    className="select-filter-control"
+                    style={{ width: '100%' }}
+                    value={assignedTo}
+                    onChange={(e) => setAssignedTo(e.target.value)}
+                  >
+                    <option value="">Unassigned</option>
+                    {agents.map((ag) => (
+                      <option key={ag.id} value={ag.id}>
+                        {ag.name}
+                      </option>
+                    ))}
+                  </select>
                 </div>
-              </div>
+
+                <button type="submit" disabled={savingUpdate} className="btn-dark" style={{ width: '100%', marginTop: '1rem' }}>
+                  {savingUpdate ? 'Saving Changes...' : 'Save Ticket Actions'}
+                </button>
+              </form>
             </div>
           </div>
         </div>

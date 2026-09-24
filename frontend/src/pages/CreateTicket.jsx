@@ -1,29 +1,26 @@
 import React, { useState } from 'react';
-import { useNavigate, Link } from 'react-router-dom';
+import { useNavigate } from 'react-router-dom';
 import api from '../services/api';
-import Navbar from '../components/Navbar';
-import { ArrowLeft, Send, AlertCircle, HelpCircle } from 'lucide-react';
+import Sidebar from '../components/Sidebar';
+import { useAuth } from '../context/AuthContext';
+import { AlertCircle } from 'lucide-react';
 
 const CreateTicket = () => {
+  const { user } = useAuth();
+  const navigate = useNavigate();
+
   const [subject, setSubject] = useState('');
   const [description, setDescription] = useState('');
   const [priority, setPriority] = useState('medium');
   const [error, setError] = useState('');
   const [submitting, setSubmitting] = useState(false);
 
-  const navigate = useNavigate();
-
   const handleSubmit = async (e) => {
     e.preventDefault();
     setError('');
 
-    if (!subject.trim()) {
-      setError('Please provide a subject for your ticket');
-      return;
-    }
-
-    if (!description.trim()) {
-      setError('Please provide detailed description of the issue');
+    if (!subject.trim() || !description.trim()) {
+      setError('Subject and description are required.');
       return;
     }
 
@@ -34,90 +31,98 @@ const CreateTicket = () => {
         description: description.trim(),
         priority
       });
-
-      navigate('/customer/dashboard');
+      navigate('/customer/tickets');
     } catch (err) {
       console.error('Error creating ticket:', err);
-      const msg = err.response?.data?.error || 'Failed to submit support ticket';
-      setError(msg);
+      setError(err.response?.data?.error || 'Failed to submit ticket.');
     } finally {
       setSubmitting(false);
     }
   };
 
   return (
-    <div className="app-layout">
-      <Navbar />
+    <div className="dashboard-layout">
+      <Sidebar />
 
-      <main className="main-content">
-        <div className="container container-sm">
-          <Link to="/customer/dashboard" className="back-link">
-            <ArrowLeft size={16} /> Back to Dashboard
-          </Link>
+      <main className="dashboard-main">
+        {/* Top Header */}
+        <div className="top-header">
+          <div>
+            <h1 className="welcome-title">Create a Support Ticket</h1>
+            <p className="welcome-subtitle">Provide details about your issue and we'll get back to you.</p>
+          </div>
 
-          <div className="card form-card">
-            <div className="card-header">
-              <h2 className="card-title">Create New Support Ticket</h2>
-              <p className="card-subtitle">
-                Describe the problem you are experiencing. Our support team will respond shortly.
-              </p>
+          <div className="header-user-profile">
+            <div className="user-avatar-circle">
+              {user?.name ? user.name.substring(0, 2).toUpperCase() : 'JD'}
             </div>
+            <div className="user-profile-meta">
+              <span className="user-profile-name">{user?.name || 'John Doe'}</span>
+              <span className="user-profile-role">Customer</span>
+            </div>
+          </div>
+        </div>
 
+        {/* Form Container matching Mockup #5 */}
+        <div className="form-card-container">
+          <div className="card-wrapper">
             {error && (
-              <div className="alert alert-danger mb-4">
-                <AlertCircle size={18} />
+              <div className="alert alert-danger" style={{ marginBottom: '1.25rem' }}>
+                <AlertCircle size={16} />
                 <span>{error}</span>
               </div>
             )}
 
             <form onSubmit={handleSubmit}>
-              <div className="form-group">
-                <label htmlFor="ticket-subject">Subject</label>
+              <div className="form-group-field">
+                <label htmlFor="ticket-subject">
+                  Subject <span className="req">*</span>
+                </label>
                 <input
                   id="ticket-subject"
                   type="text"
-                  className="form-control"
-                  placeholder="Brief summary of the issue..."
+                  className="form-input-control"
+                  placeholder="Enter ticket subject"
                   value={subject}
                   onChange={(e) => setSubject(e.target.value)}
                   required
                 />
               </div>
 
-              <div className="form-group">
-                <label htmlFor="ticket-priority">Priority Level</label>
-                <select
-                  id="ticket-priority"
-                  className="form-control"
-                  value={priority}
-                  onChange={(e) => setPriority(e.target.value)}
-                >
-                  <option value="low">Low - General inquiry or feature request</option>
-                  <option value="medium">Medium - System issue affecting workflow</option>
-                  <option value="high">High - Critical system blocking issue</option>
-                </select>
-              </div>
-
-              <div className="form-group">
-                <label htmlFor="ticket-description">Detailed Description</label>
+              <div className="form-group-field">
+                <label htmlFor="ticket-description">
+                  Description <span className="req">*</span>
+                </label>
                 <textarea
                   id="ticket-description"
-                  className="form-control textarea"
+                  className="form-input-control"
                   rows={6}
-                  placeholder="Please provide steps to reproduce, error messages, or context..."
+                  placeholder="Describe your issue in detail..."
                   value={description}
                   onChange={(e) => setDescription(e.target.value)}
+                  style={{ resize: 'vertical' }}
                   required
                 />
               </div>
 
-              <div className="form-actions">
-                <Link to="/customer/dashboard" className="btn btn-secondary">
-                  Cancel
-                </Link>
-                <button type="submit" disabled={submitting} className="btn btn-primary btn-icon">
-                  <Send size={16} />
-                  <span>{submitting ? 'Submitting...' : 'Submit Ticket'}</span>
+              <div className="form-group-field">
+                <label htmlFor="ticket-priority">Priority</label>
+                <select
+                  id="ticket-priority"
+                  className="select-filter-control"
+                  style={{ width: '100%' }}
+                  value={priority}
+                  onChange={(e) => setPriority(e.target.value)}
+                >
+                  <option value="low">Low</option>
+                  <option value="medium">Medium</option>
+                  <option value="high">High</option>
+                </select>
+              </div>
+
+              <div style={{ display: 'flex', justifyContent: 'flex-end', marginTop: '2rem' }}>
+                <button type="submit" disabled={submitting} className="btn-dark">
+                  {submitting ? 'Creating Ticket...' : 'Create Ticket'}
                 </button>
               </div>
             </form>

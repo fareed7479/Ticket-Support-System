@@ -1,54 +1,69 @@
 import React from 'react';
 import { BrowserRouter as Router, Routes, Route, Navigate } from 'react-router-dom';
-import { AuthProvider, useAuth } from './context/AuthContext';
+import { AuthProvider } from './context/AuthContext';
 import ProtectedRoute from './components/ProtectedRoute';
+import PublicRoute from './components/PublicRoute';
 
+import Landing from './pages/Landing';
 import Login from './pages/Login';
 import Register from './pages/Register';
 import CustomerDashboard from './pages/CustomerDashboard';
+import CustomerTickets from './pages/CustomerTickets';
 import CreateTicket from './pages/CreateTicket';
 import TicketDetails from './pages/TicketDetails';
 import AgentDashboard from './pages/AgentDashboard';
+import AgentTickets from './pages/AgentTickets';
 import AgentTicketDetails from './pages/AgentTicketDetails';
+import UserManagement from './pages/UserManagement';
+import Profile from './pages/Profile';
 
 import './styles/index.css';
-
-// Root redirect component
-const RootRedirect = () => {
-  const { user, loading } = useAuth();
-
-  if (loading) {
-    return (
-      <div className="loading-spinner-container">
-        <div className="spinner"></div>
-      </div>
-    );
-  }
-
-  if (!user) {
-    return <Navigate to="/login" replace />;
-  }
-
-  return user.role === 'agent' 
-    ? <Navigate to="/agent/dashboard" replace /> 
-    : <Navigate to="/customer/dashboard" replace />;
-};
 
 function App() {
   return (
     <AuthProvider>
       <Router>
         <Routes>
-          {/* Public Routes */}
-          <Route path="/login" element={<Login />} />
-          <Route path="/register" element={<Register />} />
+          {/* Guest / Public Routes (Guarded with PublicRoute) */}
+          <Route
+            path="/"
+            element={
+              <PublicRoute>
+                <Landing />
+              </PublicRoute>
+            }
+          />
+          <Route
+            path="/login"
+            element={
+              <PublicRoute>
+                <Login />
+              </PublicRoute>
+            }
+          />
+          <Route
+            path="/register"
+            element={
+              <PublicRoute>
+                <Register />
+              </PublicRoute>
+            }
+          />
 
-          {/* Customer Routes */}
+          {/* Customer Protected Routes */}
           <Route
             path="/customer/dashboard"
             element={
               <ProtectedRoute allowedRole="customer">
                 <CustomerDashboard />
+              </ProtectedRoute>
+            }
+          />
+          <Route
+            path="/customer/tickets"
+            element={
+              <ProtectedRoute allowedRole="customer">
+                <CustomerTickets />
               </ProtectedRoute>
             }
           />
@@ -69,12 +84,20 @@ function App() {
             }
           />
 
-          {/* Agent Routes */}
+          {/* Agent Protected Routes */}
           <Route
             path="/agent/dashboard"
             element={
               <ProtectedRoute allowedRole="agent">
                 <AgentDashboard />
+              </ProtectedRoute>
+            }
+          />
+          <Route
+            path="/agent/tickets"
+            element={
+              <ProtectedRoute allowedRole="agent">
+                <AgentTickets />
               </ProtectedRoute>
             }
           />
@@ -86,9 +109,26 @@ function App() {
               </ProtectedRoute>
             }
           />
+          <Route
+            path="/agent/users"
+            element={
+              <ProtectedRoute allowedRole="agent">
+                <UserManagement />
+              </ProtectedRoute>
+            }
+          />
 
-          {/* Fallback Route */}
-          <Route path="/" element={<RootRedirect />} />
+          {/* User Profile Route (Accessible by both Customer & Agent) */}
+          <Route
+            path="/profile"
+            element={
+              <ProtectedRoute>
+                <Profile />
+              </ProtectedRoute>
+            }
+          />
+
+          {/* Fallback Catch-All Route */}
           <Route path="*" element={<Navigate to="/" replace />} />
         </Routes>
       </Router>

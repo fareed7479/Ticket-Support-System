@@ -1,0 +1,149 @@
+import React, { useState, useEffect } from 'react';
+import { Link } from 'react-router-dom';
+import api from '../services/api';
+import Sidebar from '../components/Sidebar';
+import { useAuth } from '../context/AuthContext';
+import { Search } from 'lucide-react';
+
+const AgentTickets = () => {
+  const { user } = useAuth();
+  const [tickets, setTickets] = useState([]);
+  const [loading, setLoading] = useState(true);
+  const [search, setSearch] = useState('');
+  const [statusFilter, setStatusFilter] = useState('');
+  const [priorityFilter, setPriorityFilter] = useState('');
+
+  const fetchTickets = async () => {
+    try {
+      setLoading(true);
+      const params = {};
+      if (statusFilter) params.status = statusFilter;
+      if (priorityFilter) params.priority = priorityFilter;
+      if (search.trim()) params.search = search.trim();
+
+      const response = await api.get('/tickets', { params });
+      setTickets(response.data);
+    } catch (err) {
+      console.error('Error fetching agent tickets queue:', err);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  useEffect(() => {
+    fetchTickets();
+  }, [statusFilter, priorityFilter, search]);
+
+  return (
+    <div className="dashboard-layout">
+      <Sidebar />
+
+      <main className="dashboard-main">
+        {/* Top Header */}
+        <div className="top-header">
+          <div>
+            <h1 className="welcome-title">All Support Tickets</h1>
+            <p className="welcome-subtitle">View, search and manage all tickets.</p>
+          </div>
+
+          <div className="header-user-profile">
+            <div className="user-avatar-circle" style={{ background: '#e0e7ff', color: '#4f46e5' }}>
+              {user?.name ? user.name.substring(0, 2).toUpperCase() : 'SL'}
+            </div>
+            <div className="user-profile-meta">
+              <span className="user-profile-name">{user?.name || 'Sarah Lee'}</span>
+              <span className="user-profile-role">Agent</span>
+            </div>
+          </div>
+        </div>
+
+        {/* Search & Filters Bar matching Mockup #9 */}
+        <div className="filter-bar-flex">
+          <div className="search-input-box">
+            <Search className="search-icon" size={16} />
+            <input
+              type="text"
+              placeholder="Search tickets..."
+              value={search}
+              onChange={(e) => setSearch(e.target.value)}
+            />
+          </div>
+
+          <select
+            className="select-filter-control"
+            value={statusFilter}
+            onChange={(e) => setStatusFilter(e.target.value)}
+          >
+            <option value="">All Status</option>
+            <option value="open">Open</option>
+            <option value="in_progress">In Progress</option>
+            <option value="closed">Resolved</option>
+          </select>
+
+          <select
+            className="select-filter-control"
+            value={priorityFilter}
+            onChange={(e) => setPriorityFilter(e.target.value)}
+          >
+            <option value="">All Priority</option>
+            <option value="high">High</option>
+            <option value="medium">Medium</option>
+            <option value="low">Low</option>
+          </select>
+        </div>
+
+        {/* Tickets Table Card matching Mockup #9 */}
+        <div className="card-wrapper">
+          {loading ? (
+            <div style={{ textAlign: 'center', padding: '3rem', color: '#64748b' }}>Loading tickets queue...</div>
+          ) : tickets.length === 0 ? (
+            <div style={{ textAlign: 'center', padding: '3rem', color: '#64748b' }}>No tickets found matching criteria.</div>
+          ) : (
+            <div className="table-responsive">
+              <table className="helpdesk-table">
+                <thead>
+                  <tr>
+                    <th>ID</th>
+                    <th>Subject</th>
+                    <th>Customer</th>
+                    <th>Priority</th>
+                    <th>Status</th>
+                    <th>Created At</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {tickets.map((t) => (
+                    <tr key={t.id}>
+                      <td className="cell-id">#{t.id}</td>
+                      <td className="cell-subject">
+                        <Link to={`/agent/tickets/${t.id}`}>{t.subject}</Link>
+                      </td>
+                      <td style={{ fontWeight: 600 }}>
+                        {t.customer_name}
+                      </td>
+                      <td>
+                        <span className={`badge-pill badge-${t.priority.toLowerCase()}`}>
+                          {t.priority.charAt(0).toUpperCase() + t.priority.slice(1)}
+                        </span>
+                      </td>
+                      <td>
+                        <span className={`badge-pill badge-${t.status === 'closed' ? 'resolved' : t.status}`}>
+                          {t.status === 'closed' ? 'Resolved' : t.status === 'in_progress' ? 'In Progress' : 'Open'}
+                        </span>
+                      </td>
+                      <td>
+                        {new Date(t.created_at).toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' })}
+                      </td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            </div>
+          )}
+        </div>
+      </main>
+    </div>
+  );
+};
+
+export default AgentTickets;
