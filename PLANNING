@@ -1,0 +1,224 @@
+# Support Ticket Management System - System Architecture & Plan (Phase 1)
+
+## 1. System Overview & Architecture
+
+```text
+React Frontend (SPA)
+   ↓ (HTTP / REST APIs with Axios Interceptors)
+Express Backend Server (Node.js)
+   ↓ (Middleware: JWT Auth & RBAC Authorization)
+Controllers & SQL Query Execution
+   ↓ (mysql2 Connection Pool with Parameterized Queries)
+MySQL Database (support_tickets)
+```
+
+### Layer Responsibilities
+* **Frontend (React)**: User Interface, State Management (Context API), Client-side Routing (React Router v6), Axios REST API client, form validation, responsive UX.
+* **Backend (Express)**: REST API routes, Request Controllers, JWT Authentication, Role-based Authorization, Request Data Validation, Standardized Error Handling.
+* **Database (MySQL)**: Relational Data Persistence, Foreign Key Constraints, Indexes for Query Optimization, Transactions where appropriate.
+
+---
+
+## 2. Directory Structure
+
+```text
+support-ticket-system/
+├── frontend/
+│   ├── public/
+│   │   └── index.html
+│   ├── src/
+│   │   ├── components/
+│   │   │   ├── Navbar.jsx
+│   │   │   ├── ProtectedRoute.jsx
+│   │   │   ├── StatusBadge.jsx
+│   │   │   ├── PriorityBadge.jsx
+│   │   │   ├── TicketCard.jsx
+│   │   │   └── TicketFilter.jsx
+│   │   ├── context/
+│   │   │   └── AuthContext.jsx
+│   │   ├── pages/
+│   │   │   ├── Login.jsx
+│   │   │   ├── Register.jsx
+│   │   │   ├── CustomerDashboard.jsx
+│   │   │   ├── CreateTicket.jsx
+│   │   │   ├── TicketDetails.jsx
+│   │   │   ├── AgentDashboard.jsx
+│   │   │   └── AgentTicketDetails.jsx
+│   │   ├── services/
+│   │   │   └── api.js
+│   │   ├── styles/
+│   │   │   └── index.css
+│   │   ├── App.jsx
+│   │   └── index.js
+│   ├── package.json
+│   └── .env.example
+├── backend/
+│   ├── controllers/
+│   │   ├── authController.js
+│   │   ├── ticketController.js
+│   │   ├── commentController.js
+│   │   └── userController.js
+│   ├── middleware/
+│   │   ├── authMiddleware.js
+│   │   └── validateMiddleware.js
+│   ├── routes/
+│   │   ├── authRoutes.js
+│   │   ├── ticketRoutes.js
+│   │   ├── commentRoutes.js
+│   │   └── userRoutes.js
+│   ├── db.js
+│   ├── server.js
+│   ├── package.json
+│   └── .env.example
+├── database/
+│   ├── schema.sql
+│   └── seed.sql
+├── tests/
+│   └── api.test.js
+├── postman/
+│   └── support-ticket-system.json
+├── README.md
+└── .gitignore
+```
+
+---
+
+## 3. Database ER Diagram & Schema Design
+
+### Entity Relationship Diagram (Mermaid)
+
+```mermaid
+erDiagram
+    USERS ||--o{ TICKETS : "creates (user_id)"
+    USERS ||--o{ TICKETS : "assigned to (assigned_to)"
+    USERS ||--o{ TICKET_COMMENTS : "posts (user_id)"
+    TICKETS ||--o{ TICKET_COMMENTS : "has (ticket_id)"
+
+    USERS {
+        int id PK
+        string name
+        string email UK
+        string password_hash
+        enum role "customer | agent"
+        datetime created_at
+    }
+
+    TICKETS {
+        int id PK
+        int user_id FK
+        string subject
+        text description
+        enum priority "low | medium | high"
+        enum status "open | in_progress | closed"
+        int assigned_to FK "nullable"
+        datetime created_at
+        datetime updated_at
+    }
+
+    TICKET_COMMENTS {
+        int id PK
+        int ticket_id FK
+        int user_id FK
+        text comment
+        datetime created_at
+    }
+```
+
+### Table Definitions
+1. **`users`**:
+   - `id`: INT AUTO_INCREMENT PRIMARY KEY
+   - `name`: VARCHAR(100) NOT NULL
+   - `email`: VARCHAR(100) NOT NULL UNIQUE
+   - `password_hash`: VARCHAR(255) NOT NULL
+   - `role`: ENUM('customer', 'agent') DEFAULT 'customer'
+   - `created_at`: TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+
+2. **`tickets`**:
+   - `id`: INT AUTO_INCREMENT PRIMARY KEY
+   - `user_id`: INT NOT NULL, FOREIGN KEY -> users(id) ON DELETE CASCADE
+   - `subject`: VARCHAR(255) NOT NULL
+   - `description`: TEXT NOT NULL
+   - `priority`: ENUM('low', 'medium', 'high') DEFAULT 'medium'
+   - `status`: ENUM('open', 'in_progress', 'closed') DEFAULT 'open'
+   - `assigned_to`: INT NULLABLE, FOREIGN KEY -> users(id) ON DELETE SET NULL
+   - `created_at`: TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+   - `updated_at`: TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP
+   - **Indexes**: `idx_tickets_status (status)`, `idx_tickets_user_id (user_id)`, `idx_tickets_assigned_to (assigned_to)`
+
+3. **`ticket_comments`**:
+   - `id`: INT AUTO_INCREMENT PRIMARY KEY
+   - `ticket_id`: INT NOT NULL, FOREIGN KEY -> tickets(id) ON DELETE CASCADE
+   - `user_id`: INT NOT NULL, FOREIGN KEY -> users(id) ON DELETE CASCADE
+   - `comment`: TEXT NOT NULL
+   - `created_at`: TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+   - **Indexes**: `idx_comments_ticket_id (ticket_id)`
+
+---
+
+## 4. API Endpoints Specification
+
+| Method | Endpoint | Access / Role | Description |
+| :--- | :--- | :--- | :--- |
+| **POST** | `/api/auth/register` | Public | Register customer account |
+| **POST** | `/api/auth/login` | Public | Authenticate user & return JWT |
+| **GET** | `/api/tickets` | Authenticated | Customer gets own tickets; Agent gets all tickets (supports search, filter, sort) |
+| **POST** | `/api/tickets` | Customer | Create a new ticket (owner from `req.user.id`) |
+| **GET** | `/api/tickets/:id` | Authenticated | Get ticket details + JOIN author & assigned agent info (ownership checked for customer) |
+| **PUT** | `/api/tickets/:id` | Agent | Update status, priority, or assigned agent |
+| **DELETE**| `/api/tickets/:id` | Customer / Agent | Delete open ticket (customer: own open ticket; agent: any ticket) |
+| **GET** | `/api/tickets/:id/comments` | Authenticated | Get comments for ticket (after access check) |
+| **POST** | `/api/tickets/:id/comments` | Authenticated | Add comment to ticket (after access check) |
+| **GET** | `/api/users` | Agent | Get list of agents for ticket assignment |
+
+---
+
+## 5. Authentication & Authorization Flow
+
+```text
+Client Application                                Express API Server
+      |                                                   |
+      | --- POST /api/auth/login (email, password) -----> |
+      |                                                   | 1. Query user by email (parameterized)
+      |                                                   | 2. bcrypt.compare(pass, hash)
+      |                                                   | 3. jwt.sign({ id, role }, secret)
+      | <--- 200 OK { token, user: { id, name, role } } ---|
+      |                                                   |
+      | --- GET /api/tickets (Header: Bearer <token>) --->|
+      |                                                   | 1. authMiddleware extracts token
+      |                                                   | 2. jwt.verify(token) -> req.user
+      |                                                   | 3. controller checks req.user.role
+      |                                                   | 4. SQL execution with WHERE filtering
+      | <--- 200 OK [ tickets ] --------------------------|
+```
+
+---
+
+## 6. Frontend Route & Component Architecture
+
+| Path | Component | Access Guard | Description |
+| :--- | :--- | :--- | :--- |
+| `/login` | `Login.jsx` | Public / Guest | Login form |
+| `/register` | `Register.jsx` | Public / Guest | Customer registration |
+| `/customer/dashboard` | `CustomerDashboard.jsx` | Customer | Stats overview & list of customer's tickets |
+| `/customer/tickets/new` | `CreateTicket.jsx` | Customer | Form to submit a new ticket |
+| `/customer/tickets/:id` | `TicketDetails.jsx` | Customer | Ticket detail view & customer comments |
+| `/agent/dashboard` | `AgentDashboard.jsx` | Agent | All tickets management, filters, stats |
+| `/agent/tickets/:id` | `AgentTicketDetails.jsx` | Agent | Ticket detail view, status/priority update, agent assignment, comments |
+
+---
+
+## 7. Technical Key Takeaways for Interview Explanation
+
+1. **Why JWT over Session Cookies?**
+   - Stateless server architecture. No need to store active session IDs in database or memory on the server. Works cleanly for RESTful mobile or web clients.
+2. **Why bcrypt?**
+   - Automatically handles random salt generation and adaptive cost factors to prevent rainbow table and dictionary attacks.
+3. **Why 401 Unauthorized vs 403 Forbidden?**
+   - `401 Unauthorized`: Client is unauthenticated (missing or invalid JWT).
+   - `403 Forbidden`: Client is authenticated, but lacks sufficient permissions for the target resource.
+4. **Why Parameterized Queries (`?` placeholders)?**
+   - Prevents SQL Injection. The database engine compiles SQL structure first, treating input parameters strictly as data values.
+5. **Why MySQL Connection Pool (`mysql2/promise`)?**
+   - Avoids high overhead of creating and closing a new TCP connection on every API request by maintaining a pool of reusable connections.
+6. **Why Axios Interceptors?**
+   - Centralizes attaching the `Authorization: Bearer <token>` header to all outgoing requests without repeating headers code across components.
