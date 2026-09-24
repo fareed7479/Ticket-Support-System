@@ -15,10 +15,10 @@ SET FOREIGN_KEY_CHECKS = 1;
 -- We will insert pre-hashed bcrypt strings for password123
 
 INSERT INTO users (id, name, email, password_hash, role) VALUES
-(1, 'John Customer', 'john@example.com', '$2b$10$92IXUNpkjO0rOQ5byMi.Ye4oKoEa3Ro9llC/.og/at2.uheWG/igi', 'customer'),
-(2, 'Sarah Customer', 'sarah@example.com', '$2b$10$92IXUNpkjO0rOQ5byMi.Ye4oKoEa3Ro9llC/.og/at2.uheWG/igi', 'customer'),
-(3, 'Alex Agent', 'alex.agent@support.com', '$2b$10$92IXUNpkjO0rOQ5byMi.Ye4oKoEa3Ro9llC/.og/at2.uheWG/igi', 'agent'),
-(4, 'Maria Support', 'maria.agent@support.com', '$2b$10$92IXUNpkjO0rOQ5byMi.Ye4oKoEa3Ro9llC/.og/at2.uheWG/igi', 'agent');
+(1, 'John Customer', 'john@example.com', '$2b$10$hAxpKUXSt8nLT3DFNkLimeEL/JgdAUeeoUF7aYC5Xj82FvhRgjPRa', 'customer'),
+(2, 'Sarah Customer', 'sarah@example.com', '$2b$10$hAxpKUXSt8nLT3DFNkLimeEL/JgdAUeeoUF7aYC5Xj82FvhRgjPRa', 'customer'),
+(3, 'Alex Agent', 'alex.agent@support.com', '$2b$10$hAxpKUXSt8nLT3DFNkLimeEL/JgdAUeeoUF7aYC5Xj82FvhRgjPRa', 'agent'),
+(4, 'Maria Support', 'maria.agent@support.com', '$2b$10$hAxpKUXSt8nLT3DFNkLimeEL/JgdAUeeoUF7aYC5Xj82FvhRgjPRa', 'agent');
 
 -- Seed Tickets
 INSERT INTO tickets (id, user_id, subject, description, priority, status, assigned_to, created_at) VALUES
