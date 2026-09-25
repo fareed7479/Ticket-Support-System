@@ -11,11 +11,12 @@ const Login = () => {
   const [error, setError] = useState('');
   const [submitting, setSubmitting] = useState(false);
 
-  const { login } = useAuth();
+  const { login, logout } = useAuth();
   const navigate = useNavigate();
 
   const handleRoleSelect = (role) => {
     setRoleTab(role);
+    setError('');
     if (role === 'agent') {
       setEmail('admin.agent@support.com');
       setPassword('password123');
@@ -37,6 +38,20 @@ const Login = () => {
     try {
       setSubmitting(true);
       const user = await login(email, password);
+
+      // Validate selected role tab against account role in DB
+      if (roleTab === 'agent' && user.role !== 'agent') {
+        logout();
+        setError('Access denied: This account is registered as a Customer. Please switch to the Customer tab.');
+        return;
+      }
+
+      if (roleTab === 'customer' && user.role !== 'customer') {
+        logout();
+        setError('Access denied: This account is registered as an Admin/Agent. Please switch to the Admin/Agent tab.');
+        return;
+      }
+
       if (user.role === 'agent') {
         navigate('/agent/dashboard');
       } else {
@@ -44,7 +59,11 @@ const Login = () => {
       }
     } catch (err) {
       console.error('Login error:', err);
-      setError(err.response?.data?.error || 'Invalid email or password.');
+      if (!err.response) {
+        setError('Unable to connect to backend server. Please verify backend server is running on port 5000.');
+      } else {
+        setError(err.response?.data?.error || 'Invalid email or password.');
+      }
     } finally {
       setSubmitting(false);
     }

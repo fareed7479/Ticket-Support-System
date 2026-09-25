@@ -201,12 +201,13 @@ a {
   color: #ef4444;
 }
 
-/* Dashboard Content View */
+/* Dashboard Content View - Anti-Slop 100% Viewport Fit */
 .dashboard-main {
   flex: 1;
   margin-left: 250px;
   padding: 2.25rem 3rem;
-  width: calc(100vw - 250px);
+  width: calc(100% - 250px);
+  max-width: calc(100% - 250px);
   min-width: 0;
   box-sizing: border-box;
 }
@@ -624,12 +625,14 @@ a {
   max-width: 580px;
 }
 
-/* Split Login & Register Auth Container */
+/* Split Login & Register Auth Container - Anti-Slop 100% Viewport Fit */
 .split-auth-container {
   display: grid;
   grid-template-columns: 1fr 1fr;
   min-height: 100vh;
-  width: 100vw;
+  width: 100%;
+  max-width: 100%;
+  overflow-x: hidden;
 }
 
 @media (max-width: 900px) {
@@ -764,4 +767,74 @@ a {
   border-radius: 50%;
   display: inline-block;
   margin-right: 0.5rem;
+}
+
+/* Taste-Skill Design Directives & Responsive Breakpoints */
+button, .btn-dark, .btn-primary, .nav-item, .role-tab-btn {
+  transition: all 0.15s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+button:active, .btn-dark:active, .btn-primary:active, .role-tab-btn:active {
+  transform: translateY(1px) scale(0.98);
+}
+
+/* Responsive Viewport Fitting (< 900px Tablet / Mobile) */
+@media (max-width: 900px) {
+  .dashboard-layout {
+    flex-direction: column;
+  }
+
+  .sidebar {
+    position: relative;
+    width: 100%;
+    height: auto;
+  }
+
+  .dashboard-main {
+    margin-left: 0 !important;
+    width: 100% !important;
+    max-width: 100% !important;
+    padding: 1.5rem 1rem !important;
+  }
+
+  .landing-navbar {
+    padding: 1.25rem 1.5rem !important;
+  }
+
+  .landing-hero-section {
+    padding: 2.5rem 1.25rem !important;
+    gap: 2rem !important;
+  }
+
+  .landing-headline {
+    font-size: 2.5rem !important;
+  }
+
+  .top-header {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 1rem;
+  }
+
+  .stats-cards-grid {
+    grid-template-columns: 1fr 1fr;
+  }
+}
+
+@media (max-width: 600px) {
+  .stats-cards-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .filter-bar-flex {
+    flex-direction: column;
+  }
+
+  .search-input-box {
+    width: 100%;
+  }
+
+  .select-filter-control {
+    width: 100%;
+  }
 }
