@@ -1,9 +1,10 @@
 import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import api from '../services/api';
-import Sidebar from '../components/Sidebar';
-import { useAuth } from '../context/AuthContext';
+import api from '../../services/api';
+import Sidebar from '../../components/Sidebar';
+import { useAuth } from '../../context/AuthContext';
 import { AlertCircle } from 'lucide-react';
+import './index.css';
 
 const CreateTicket = () => {
   const { user } = useAuth();
@@ -51,19 +52,9 @@ const CreateTicket = () => {
             <h1 className="welcome-title">Create a Support Ticket</h1>
             <p className="welcome-subtitle">Provide details about your issue and we'll get back to you.</p>
           </div>
-
-          <div className="header-user-profile">
-            <div className="user-avatar-circle">
-              {user?.name ? user.name.substring(0, 2).toUpperCase() : 'JD'}
-            </div>
-            <div className="user-profile-meta">
-              <span className="user-profile-name">{user?.name || 'John Doe'}</span>
-              <span className="user-profile-role">Customer</span>
-            </div>
-          </div>
         </div>
 
-        {/* Form Container matching Mockup #5 */}
+        {/* Form Container */}
         <div className="form-card-container">
           <div className="card-wrapper">
             {error && (

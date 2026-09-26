@@ -1,7 +1,8 @@
 import React, { useState } from 'react';
-import Sidebar from '../components/Sidebar';
-import { useAuth } from '../context/AuthContext';
+import Sidebar from '../../components/Sidebar';
+import { useAuth } from '../../context/AuthContext';
 import { CheckCircle2 } from 'lucide-react';
+import './index.css';
 
 const Profile = () => {
   const { user } = useAuth();
@@ -19,7 +20,7 @@ const Profile = () => {
   const initials = user?.name ? user.name.split(' ').map(n => n[0]).join('').toUpperCase() : 'JD';
 
   return (
-    <div className="dashboard-layout">
+    <div className="dashboard-layout profile-page">
       <Sidebar />
 
       <main className="dashboard-main">
@@ -29,39 +30,18 @@ const Profile = () => {
             <h1 className="welcome-title">Profile Settings</h1>
             <p className="welcome-subtitle">Manage your account information.</p>
           </div>
-
-          <div className="header-user-profile">
-            <div className="user-avatar-circle">
-              {initials}
-            </div>
-            <div className="user-profile-meta">
-              <span className="user-profile-name">{user?.name || 'John Doe'}</span>
-              <span className="user-profile-role">{user?.role === 'agent' ? 'Agent' : 'Customer'}</span>
-            </div>
-          </div>
         </div>
 
-        {/* Profile Card Container matching Mockup #12 */}
+        {/* Profile Card Container */}
         <div className="form-card-container">
           <div className="card-wrapper">
             {/* Avatar Section */}
-            <div style={{ display: 'flex', alignItems: 'center', gap: '1.5rem', marginBottom: '2rem', paddingBottom: '1.5rem', borderBottom: '1px solid #e2e8f0' }}>
-              <div style={{
-                width: '72px',
-                height: '72px',
-                borderRadius: '50%',
-                background: '#cbd5e1',
-                color: '#0f172a',
-                display: 'flex',
-                alignItems: 'center',
-                justifyContent: 'center',
-                fontWeight: 800,
-                fontSize: '1.5rem'
-              }}>
+            <div className="profile-avatar-header">
+              <div className="profile-avatar-large">
                 {initials}
               </div>
 
-              <button type="button" className="btn-dark" style={{ background: 'transparent', color: '#0b1329', border: '1px solid #cbd5e1', padding: '0.5rem 1rem', fontSize: '0.85rem' }}>
+              <button type="button" className="btn-dark profile-photo-btn">
                 Change Photo
               </button>
             </div>

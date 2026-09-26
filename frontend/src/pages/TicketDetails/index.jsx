@@ -1,9 +1,10 @@
 import React, { useState, useEffect } from 'react';
 import { useParams, Link } from 'react-router-dom';
-import api from '../services/api';
-import Sidebar from '../components/Sidebar';
-import { useAuth } from '../context/AuthContext';
+import api from '../../services/api';
+import Sidebar from '../../components/Sidebar';
+import { useAuth } from '../../context/AuthContext';
 import { ArrowLeft, MessageSquare, AlertCircle } from 'lucide-react';
+import './index.css';
 
 const TicketDetails = () => {
   const { id } = useParams();
@@ -77,7 +78,7 @@ const TicketDetails = () => {
       <div className="dashboard-layout">
         <Sidebar />
         <main className="dashboard-main">
-          <Link to="/customer/tickets" style={{ display: 'inline-flex', alignItems: 'center', gap: '0.4rem', color: '#64748b', fontSize: '0.875rem', marginBottom: '1.5rem', fontWeight: 600 }}>
+          <Link to="/customer/tickets" style={{ display: 'inline-flex', alignItems: 'center', gap: '0.4rem', color: '#0f172a', fontSize: '0.875rem', marginBottom: '1.5rem', fontWeight: 600 }}>
             <ArrowLeft size={16} /> Back to My Tickets
           </Link>
           <div className="alert alert-danger">
@@ -94,14 +95,14 @@ const TicketDetails = () => {
       <Sidebar />
 
       <main className="dashboard-main">
-        {/* Back Link matching Mockup #7 */}
-        <Link to="/customer/tickets" style={{ display: 'inline-flex', alignItems: 'center', gap: '0.4rem', color: '#64748b', fontSize: '0.875rem', marginBottom: '1.25rem', fontWeight: 600 }}>
+        {/* Back Link */}
+        <Link to="/customer/tickets" style={{ display: 'inline-flex', alignItems: 'center', gap: '0.4rem', color: '#0f172a', fontSize: '0.875rem', marginBottom: '1.25rem', fontWeight: 600 }}>
           <ArrowLeft size={16} /> Back to My Tickets
         </Link>
 
-        {/* Top Header info matching Mockup #7 */}
+        {/* Top Header info */}
         <div style={{ marginBottom: '1.5rem' }}>
-          <span style={{ fontFamily: 'monospace', fontWeight: 700, color: '#64748b', fontSize: '0.9rem' }}>#{ticket.id}</span>
+          <span style={{ fontFamily: 'monospace', fontWeight: 700, color: '#0f172a', fontSize: '0.9rem' }}>#{ticket.id}</span>
           <div style={{ display: 'flex', alignItems: 'center', gap: '1rem', marginTop: '0.25rem' }}>
             <h1 className="welcome-title">{ticket.subject}</h1>
             <span className={`badge-pill badge-${ticket.status === 'closed' ? 'resolved' : ticket.status}`}>
@@ -113,15 +114,15 @@ const TicketDetails = () => {
           </p>
         </div>
 
-        {/* Issue Description Card matching Mockup #7 */}
+        {/* Issue Description Card */}
         <div className="card-wrapper">
           <h3 style={{ fontSize: '0.9rem', fontWeight: 700, color: '#0f172a', marginBottom: '0.5rem' }}>Description</h3>
-          <p style={{ color: '#475569', fontSize: '0.925rem', lineHeight: 1.6, whitespace: 'pre-wrap' }}>
+          <p style={{ color: '#0f172a', fontSize: '0.925rem', lineHeight: 1.6, whiteSpace: 'pre-wrap' }}>
             {ticket.description}
           </p>
         </div>
 
-        {/* Comments Section matching Mockup #7 */}
+        {/* Comments Section */}
         <div className="card-wrapper">
           <h3 style={{ fontSize: '1rem', fontWeight: 700, color: '#0f172a', marginBottom: '1.25rem' }}>
             Comments ({comments.length})
@@ -135,26 +136,26 @@ const TicketDetails = () => {
                   display: 'flex',
                   gap: '1rem',
                   padding: '1rem',
-                  borderRadius: '12px',
+                  borderRadius: '4px',
                   background: isAgent ? '#f8fafc' : '#ffffff',
-                  border: '1px solid #e2e8f0'
+                  border: '1px solid #cbd5e1'
                 }}>
-                  <div className="user-avatar-circle" style={{ background: isAgent ? '#0b1329' : '#cbd5e1', color: isAgent ? '#ffffff' : '#0f172a', flexShrink: 0 }}>
+                  <div className="user-avatar-circle" style={{ background: isAgent ? '#0f172a' : '#cbd5e1', color: '#ffffff', flexShrink: 0 }}>
                     {c.user_name ? c.user_name.substring(0, 2).toUpperCase() : 'U'}
                   </div>
                   <div>
                     <div style={{ display: 'flex', alignItems: 'center', gap: '0.6rem', marginBottom: '0.25rem' }}>
                       <strong style={{ fontSize: '0.9rem', color: '#0f172a' }}>{c.user_name}</strong>
                       {isAgent && (
-                        <span className="badge-pill" style={{ background: '#0b1329', color: '#ffffff', fontSize: '0.7rem' }}>
+                        <span className="badge-pill" style={{ background: '#0f172a', color: '#ffffff', fontSize: '0.7rem' }}>
                           Support Agent
                         </span>
                       )}
-                      <span style={{ fontSize: '0.775rem', color: '#94a3b8' }}>
+                      <span style={{ fontSize: '0.775rem', color: '#64748b' }}>
                         {new Date(c.created_at).toLocaleString()}
                       </span>
                     </div>
-                    <p style={{ fontSize: '0.9rem', color: '#475569', lineHeight: 1.5 }}>
+                    <p style={{ fontSize: '0.9rem', color: '#0f172a', lineHeight: 1.5 }}>
                       {c.comment}
                     </p>
                   </div>
@@ -163,8 +164,8 @@ const TicketDetails = () => {
             })}
           </div>
 
-          {/* Add Comment Input Form */}
-          <div style={{ marginTop: '1.75rem', paddingTop: '1.5rem', borderTop: '1px solid #e2e8f0' }}>
+          {/* Add Comment Form */}
+          <div style={{ marginTop: '1.75rem', paddingTop: '1.5rem', borderTop: '1px solid #cbd5e1' }}>
             {commentError && (
               <div className="alert alert-danger" style={{ marginBottom: '1rem' }}>
                 <AlertCircle size={16} />

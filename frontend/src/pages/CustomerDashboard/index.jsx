@@ -1,9 +1,10 @@
 import React, { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
-import api from '../services/api';
-import Sidebar from '../components/Sidebar';
-import { useAuth } from '../context/AuthContext';
+import api from '../../services/api';
+import Sidebar from '../../components/Sidebar';
+import { useAuth } from '../../context/AuthContext';
 import { ArrowRight } from 'lucide-react';
+import './index.css';
 
 const CustomerDashboard = () => {
   const { user } = useAuth();
@@ -43,19 +44,9 @@ const CustomerDashboard = () => {
             <h1 className="welcome-title">Welcome back, {user?.name?.split(' ')[0] || 'John'} 👋</h1>
             <p className="welcome-subtitle">Here's an overview of your support tickets.</p>
           </div>
-
-          <div className="header-user-profile">
-            <div className="user-avatar-circle">
-              {user?.name ? user.name.substring(0, 2).toUpperCase() : 'JD'}
-            </div>
-            <div className="user-profile-meta">
-              <span className="user-profile-name">{user?.name || 'John Doe'}</span>
-              <span className="user-profile-role">Customer</span>
-            </div>
-          </div>
         </div>
 
-        {/* Stats Cards Row matching Mockup #4 */}
+        {/* Stats Cards Row */}
         <div className="stats-cards-grid">
           <div className="stat-card-item">
             <div className="stat-card-title">Total Tickets</div>
@@ -78,20 +69,20 @@ const CustomerDashboard = () => {
           </div>
         </div>
 
-        {/* Recent Tickets Table matching Mockup #4 */}
+        {/* Recent Tickets Table */}
         <div className="card-wrapper">
           <div className="card-header-flex">
             <h2 className="card-title-text">Recent Tickets</h2>
-            <Link to="/customer/tickets" style={{ fontSize: '0.85rem', fontWeight: 700, color: '#0284c7', display: 'flex', alignItems: 'center', gap: '0.25rem' }}>
+            <Link to="/customer/tickets" style={{ fontSize: '0.85rem', fontWeight: 700, color: '#0f172a', display: 'flex', alignItems: 'center', gap: '0.25rem' }}>
               <span>View all</span>
               <ArrowRight size={14} />
             </Link>
           </div>
 
           {loading ? (
-            <div style={{ textAlign: 'center', padding: '2rem', color: '#64748b' }}>Loading tickets...</div>
+            <div style={{ textAlign: 'center', padding: '2rem', color: '#72777d' }}>Loading tickets...</div>
           ) : recentTickets.length === 0 ? (
-            <div style={{ textAlign: 'center', padding: '2rem', color: '#64748b' }}>No recent tickets.</div>
+            <div style={{ textAlign: 'center', padding: '2rem', color: '#72777d' }}>No recent tickets.</div>
           ) : (
             <div className="table-responsive">
               <table className="helpdesk-table">

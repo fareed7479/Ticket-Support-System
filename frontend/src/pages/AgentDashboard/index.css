@@ -1,0 +1,12 @@
+/* AgentDashboard Component Styles */
+.agent-dashboard-page .overview-grid-container {
+  display: grid;
+  grid-template-columns: 320px 1fr;
+  gap: 1.5rem;
+}
+
+@media (max-width: 1024px) {
+  .agent-dashboard-page .overview-grid-container {
+    grid-template-columns: 1fr;
+  }
+}

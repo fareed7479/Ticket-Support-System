@@ -1,9 +1,10 @@
 import React, { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
-import api from '../services/api';
-import Sidebar from '../components/Sidebar';
-import { useAuth } from '../context/AuthContext';
+import api from '../../services/api';
+import Sidebar from '../../components/Sidebar';
+import { useAuth } from '../../context/AuthContext';
 import { Search } from 'lucide-react';
+import './index.css';
 
 const AgentTickets = () => {
   const { user } = useAuth();
@@ -35,7 +36,7 @@ const AgentTickets = () => {
   }, [statusFilter, priorityFilter, search]);
 
   return (
-    <div className="dashboard-layout">
+    <div className="dashboard-layout agent-tickets-page">
       <Sidebar />
 
       <main className="dashboard-main">
@@ -45,19 +46,9 @@ const AgentTickets = () => {
             <h1 className="welcome-title">All Support Tickets</h1>
             <p className="welcome-subtitle">View, search and manage all tickets.</p>
           </div>
-
-          <div className="header-user-profile">
-            <div className="user-avatar-circle" style={{ background: '#e0e7ff', color: '#4f46e5' }}>
-              {user?.name ? user.name.substring(0, 2).toUpperCase() : 'SL'}
-            </div>
-            <div className="user-profile-meta">
-              <span className="user-profile-name">{user?.name || 'Sarah Lee'}</span>
-              <span className="user-profile-role">Agent</span>
-            </div>
-          </div>
         </div>
 
-        {/* Search & Filters Bar matching Mockup #9 */}
+        {/* Search & Filters Bar */}
         <div className="filter-bar-flex">
           <div className="search-input-box">
             <Search className="search-icon" size={16} />
@@ -92,7 +83,7 @@ const AgentTickets = () => {
           </select>
         </div>
 
-        {/* Tickets Table Card matching Mockup #9 */}
+        {/* Tickets Table Card */}
         <div className="card-wrapper">
           {loading ? (
             <div style={{ textAlign: 'center', padding: '3rem', color: '#64748b' }}>Loading tickets queue...</div>

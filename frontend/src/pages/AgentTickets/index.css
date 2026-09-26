@@ -1,0 +1,15 @@
+/* AgentTickets Component Styles */
+.agent-tickets-page .filter-bar-flex {
+  display: flex;
+  gap: 1rem;
+  margin-bottom: 1.5rem;
+  flex-wrap: wrap;
+}
+
+.agent-tickets-page .search-input-box {
+  flex: 1;
+  min-width: 240px;
+  position: relative;
+  display: flex;
+  align-items: center;
+}

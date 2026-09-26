@@ -1,0 +1,5 @@
+/* CustomerTickets Page CSS */
+.filter-bar-flex {
+  display: flex;
+  gap: 1.25rem;
+}

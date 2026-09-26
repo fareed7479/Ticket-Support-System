@@ -1,9 +1,10 @@
 import React, { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
-import api from '../services/api';
-import Sidebar from '../components/Sidebar';
-import { useAuth } from '../context/AuthContext';
+import api from '../../services/api';
+import Sidebar from '../../components/Sidebar';
+import { useAuth } from '../../context/AuthContext';
 import { Search } from 'lucide-react';
+import './index.css';
 
 const CustomerTickets = () => {
   const { user } = useAuth();
@@ -45,19 +46,9 @@ const CustomerTickets = () => {
             <h1 className="welcome-title">My Tickets</h1>
             <p className="welcome-subtitle">View and manage your support tickets.</p>
           </div>
-
-          <div className="header-user-profile">
-            <div className="user-avatar-circle">
-              {user?.name ? user.name.substring(0, 2).toUpperCase() : 'JD'}
-            </div>
-            <div className="user-profile-meta">
-              <span className="user-profile-name">{user?.name || 'John Doe'}</span>
-              <span className="user-profile-role">Customer</span>
-            </div>
-          </div>
         </div>
 
-        {/* Search & Filters Bar matching Mockup #6 */}
+        {/* Search & Filters Bar */}
         <div className="filter-bar-flex">
           <div className="search-input-box">
             <Search className="search-icon" size={16} />
@@ -92,12 +83,12 @@ const CustomerTickets = () => {
           </select>
         </div>
 
-        {/* Tickets Table Card matching Mockup #6 */}
+        {/* Tickets Table Card */}
         <div className="card-wrapper">
           {loading ? (
-            <div style={{ textAlign: 'center', padding: '3rem', color: '#64748b' }}>Loading tickets...</div>
+            <div style={{ textAlign: 'center', padding: '3rem', color: '#72777d' }}>Loading tickets...</div>
           ) : tickets.length === 0 ? (
-            <div style={{ textAlign: 'center', padding: '3rem', color: '#64748b' }}>No tickets found matching criteria.</div>
+            <div style={{ textAlign: 'center', padding: '3rem', color: '#72777d' }}>No tickets found matching criteria.</div>
           ) : (
             <div className="table-responsive">
               <table className="helpdesk-table">

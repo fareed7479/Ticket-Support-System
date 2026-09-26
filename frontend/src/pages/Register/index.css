@@ -1,0 +1,8 @@
+/* Register Page Specific Styling */
+.auth-form-card {
+  background: #ffffff;
+  border: 1px solid var(--border-color);
+  padding: 2.5rem;
+  width: 100%;
+  max-width: 460px;
+}

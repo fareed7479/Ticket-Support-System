@@ -1,9 +1,10 @@
 import React, { useState, useEffect } from 'react';
 import { useParams, Link } from 'react-router-dom';
-import api from '../services/api';
-import Sidebar from '../components/Sidebar';
-import { useAuth } from '../context/AuthContext';
+import api from '../../services/api';
+import Sidebar from '../../components/Sidebar';
+import { useAuth } from '../../context/AuthContext';
 import { ArrowLeft, AlertCircle, CheckCircle2 } from 'lucide-react';
+import './index.css';
 
 const AgentTicketDetails = () => {
   const { id } = useParams();
@@ -100,7 +101,7 @@ const AgentTicketDetails = () => {
 
   if (loading) {
     return (
-      <div className="dashboard-layout">
+      <div className="dashboard-layout agent-ticket-details-page">
         <Sidebar />
         <main className="dashboard-main">
           <div style={{ textAlign: 'center', padding: '4rem', color: '#64748b' }}>Loading agent workspace...</div>
@@ -111,7 +112,7 @@ const AgentTicketDetails = () => {
 
   if (error && !ticket) {
     return (
-      <div className="dashboard-layout">
+      <div className="dashboard-layout agent-ticket-details-page">
         <Sidebar />
         <main className="dashboard-main">
           <Link to="/agent/tickets" style={{ display: 'inline-flex', alignItems: 'center', gap: '0.4rem', color: '#64748b', fontSize: '0.875rem', marginBottom: '1.5rem', fontWeight: 600 }}>
@@ -127,16 +128,16 @@ const AgentTicketDetails = () => {
   }
 
   return (
-    <div className="dashboard-layout">
+    <div className="dashboard-layout agent-ticket-details-page">
       <Sidebar />
 
       <main className="dashboard-main">
-        {/* Back Link matching Mockup #10 */}
+        {/* Back Link */}
         <Link to="/agent/tickets" style={{ display: 'inline-flex', alignItems: 'center', gap: '0.4rem', color: '#64748b', fontSize: '0.875rem', marginBottom: '1.25rem', fontWeight: 600 }}>
           <ArrowLeft size={16} /> Back to All Tickets
         </Link>
 
-        {/* Ticket Header matching Mockup #10 */}
+        {/* Ticket Header */}
         <div style={{ marginBottom: '1.5rem' }}>
           <span style={{ fontFamily: 'monospace', fontWeight: 700, color: '#64748b', fontSize: '0.9rem' }}>#{ticket.id}</span>
           <div style={{ display: 'flex', alignItems: 'center', gap: '1rem', marginTop: '0.25rem', flexWrap: 'wrap' }}>
@@ -153,59 +154,32 @@ const AgentTicketDetails = () => {
           </p>
         </div>
 
-        {/* Tab Navigation matching Mockup #10 */}
-        <div style={{ display: 'flex', gap: '1.5rem', borderBottom: '1px solid #e2e8f0', marginBottom: '1.5rem' }}>
+        {/* Tab Navigation */}
+        <div className="agent-tabs-header">
           <button
             onClick={() => setActiveTab('details')}
-            style={{
-              padding: '0.65rem 0',
-              border: 'none',
-              background: 'none',
-              fontWeight: 700,
-              fontSize: '0.9rem',
-              color: activeTab === 'details' ? '#0b1329' : '#64748b',
-              borderBottom: activeTab === 'details' ? '2px solid #0b1329' : '2px solid transparent',
-              cursor: 'pointer'
-            }}
+            className={`agent-tab-btn ${activeTab === 'details' ? 'active' : ''}`}
           >
             Details
           </button>
 
           <button
             onClick={() => setActiveTab('comments')}
-            style={{
-              padding: '0.65rem 0',
-              border: 'none',
-              background: 'none',
-              fontWeight: 700,
-              fontSize: '0.9rem',
-              color: activeTab === 'comments' ? '#0b1329' : '#64748b',
-              borderBottom: activeTab === 'comments' ? '2px solid #0b1329' : '2px solid transparent',
-              cursor: 'pointer'
-            }}
+            className={`agent-tab-btn ${activeTab === 'comments' ? 'active' : ''}`}
           >
             Comments ({comments.length})
           </button>
 
           <button
             onClick={() => setActiveTab('activity')}
-            style={{
-              padding: '0.65rem 0',
-              border: 'none',
-              background: 'none',
-              fontWeight: 700,
-              fontSize: '0.9rem',
-              color: activeTab === 'activity' ? '#0b1329' : '#64748b',
-              borderBottom: activeTab === 'activity' ? '2px solid #0b1329' : '2px solid transparent',
-              cursor: 'pointer'
-            }}
+            className={`agent-tab-btn ${activeTab === 'activity' ? 'active' : ''}`}
           >
             Activity
           </button>
         </div>
 
-        {/* Details & Actions Grid matching Mockup #10 */}
-        <div style={{ display: 'grid', gridTemplateColumns: '1fr 300px', gap: '1.5rem' }}>
+        {/* Details & Actions Grid */}
+        <div className="agent-details-grid">
           {/* Main Panel */}
           <div>
             {activeTab === 'details' && (
@@ -292,7 +266,7 @@ const AgentTicketDetails = () => {
             )}
           </div>
 
-          {/* Ticket Actions Box matching Mockup #10 */}
+          {/* Ticket Actions Box */}
           <div>
             <div className="card-wrapper">
               <h3 style={{ fontSize: '1rem', fontWeight: 700, color: '#0f172a', marginBottom: '1.25rem' }}>Ticket Actions</h3>

@@ -1,0 +1,6 @@
+/* UserManagement Component Styles */
+.user-management-page .filter-bar-flex {
+  display: flex;
+  gap: 1rem;
+  margin-bottom: 1.5rem;
+}

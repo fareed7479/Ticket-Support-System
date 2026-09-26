@@ -1,8 +1,9 @@
 import React, { useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
-import { useAuth } from '../context/AuthContext';
+import { useAuth } from '../../context/AuthContext';
 import { HelpCircle, Eye, EyeOff, AlertCircle, CheckCircle2, ShieldAlert } from 'lucide-react';
-import abstractBgImg from '../assets/auth_abstract_bg.jpg';
+import abstractBgImg from '../../assets/auth_abstract_bg.jpg';
+import './index.css';
 
 const Register = () => {
   const [name, setName] = useState('');
@@ -54,7 +55,7 @@ const Register = () => {
       alignItems: 'center',
       justifyContent: 'center'
     }}>
-      {/* Abstract Green Blob Graphic Background */}
+      {/* Background Graphic */}
       <img
         src={abstractBgImg}
         alt="Abstract background graphic"
@@ -63,7 +64,7 @@ const Register = () => {
           bottom: '-10%',
           left: '-10%',
           width: '550px',
-          opacity: 0.35,
+          opacity: 0.15,
           pointerEvents: 'none',
           zIndex: 1
         }}
@@ -71,33 +72,33 @@ const Register = () => {
 
       <div className="auth-form-card" style={{ maxWidth: '460px', position: 'relative', zIndex: 10 }}>
         <div style={{ display: 'flex', alignItems: 'center', gap: '0.6rem', marginBottom: '1.5rem', justifyContent: 'center' }}>
-          <div className="sidebar-logo-icon" style={{ background: '#0b1329', color: '#ffffff' }}>
+          <div className="sidebar-logo-icon" style={{ background: '#0f172a', color: '#ffffff' }}>
             <HelpCircle size={20} />
           </div>
-          <span className="sidebar-brand-name" style={{ color: '#0b1329' }}>HelpDesk</span>
+          <span className="sidebar-brand-name" style={{ color: '#0f172a' }}>HelpDesk</span>
         </div>
 
-        <h2 style={{ fontSize: '1.5rem', fontWeight: 800, textAlign: 'center', marginBottom: '0.25rem' }}>
+        <h2 style={{ fontSize: '1.5rem', fontWeight: 800, textAlign: 'center', marginBottom: '0.25rem', color: '#0f172a' }}>
           Create Customer Account
         </h2>
         <p style={{ fontSize: '0.875rem', color: '#64748b', textAlign: 'center', marginBottom: '1.25rem' }}>
           Register as a customer to submit and track support tickets.
         </p>
 
-        {/* Pre-defined Agent Notice matching user requirement */}
+        {/* Agent Notice */}
         <div style={{
           display: 'flex',
           alignItems: 'center',
           gap: '0.5rem',
           padding: '0.6rem 0.85rem',
-          background: '#f1f5f9',
+          background: '#f8fafc',
           border: '1px solid #cbd5e1',
-          borderRadius: '8px',
+          borderRadius: '4px',
           fontSize: '0.775rem',
-          color: '#475569',
+          color: '#0f172a',
           marginBottom: '1.5rem'
         }}>
-          <ShieldAlert size={16} color="#0284c7" />
+          <ShieldAlert size={16} color="#0f172a" />
           <span>Note: Support Agents are pre-configured system accounts.</span>
         </div>
 
@@ -180,7 +181,7 @@ const Register = () => {
 
         <div style={{ textAlign: 'center', marginTop: '1.5rem', fontSize: '0.85rem', color: '#64748b' }}>
           Already have an account?{' '}
-          <Link to="/login" style={{ color: '#0284c7', fontWeight: 700 }}>
+          <Link to="/login" style={{ color: '#0f172a', fontWeight: 800 }}>
             Login
           </Link>
         </div>

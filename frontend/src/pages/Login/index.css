@@ -1,0 +1,15 @@
+/* Login Page Specific Styling */
+.split-auth-container {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  min-height: 100vh;
+  width: 100%;
+}
+
+.auth-form-card {
+  background: #ffffff;
+  border: 1px solid var(--border-color);
+  padding: 2.5rem;
+  width: 100%;
+  max-width: 480px;
+}

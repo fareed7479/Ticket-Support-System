@@ -1,7 +1,8 @@
 import React, { useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
-import { useAuth } from '../context/AuthContext';
+import { useAuth } from '../../context/AuthContext';
 import { HelpCircle, Eye, EyeOff, AlertCircle, ShieldCheck } from 'lucide-react';
+import './index.css';
 
 const Login = () => {
   const [roleTab, setRoleTab] = useState('customer'); // 'customer' or 'agent'
@@ -75,20 +76,20 @@ const Login = () => {
       <div className="split-left-panel">
         <div>
           <div className="sidebar-header" style={{ padding: 0, marginBottom: '4rem' }}>
-            <div className="sidebar-logo-icon">
+            <div className="sidebar-logo-icon" style={{ background: '#ffffff', color: '#0f172a' }}>
               <HelpCircle size={22} />
             </div>
-            <span className="sidebar-brand-name">HelpDesk</span>
+            <span className="sidebar-brand-name" style={{ color: '#ffffff' }}>HelpDesk</span>
           </div>
-          <h1 style={{ fontSize: '2.5rem', fontWeight: 800, lineHeight: 1.2 }}>
+          <h1 style={{ fontSize: '2.5rem', fontWeight: 800, lineHeight: 1.2, color: '#ffffff' }}>
             Welcome back
           </h1>
-          <p style={{ color: '#94a3b8', marginTop: '0.5rem', fontSize: '1rem' }}>
+          <p style={{ color: '#cbd5e1', marginTop: '0.5rem', fontSize: '1rem' }}>
             Sign in to your account to continue
           </p>
         </div>
 
-        <div style={{ color: '#64748b', fontSize: '0.875rem', fontStyle: 'italic' }}>
+        <div style={{ color: '#94a3b8', fontSize: '0.875rem', fontStyle: 'italic' }}>
           Good support builds stronger relationships.
         </div>
       </div>
@@ -114,7 +115,7 @@ const Login = () => {
             </button>
           </div>
 
-          <h2 style={{ fontSize: '1.5rem', fontWeight: 800, marginBottom: '0.25rem' }}>Login</h2>
+          <h2 style={{ fontSize: '1.5rem', fontWeight: 800, marginBottom: '0.25rem', color: '#0f172a' }}>Login</h2>
           <p style={{ fontSize: '0.875rem', color: '#64748b', marginBottom: '1.25rem' }}>
             Enter your email and password
           </p>
@@ -126,13 +127,13 @@ const Login = () => {
             gap: '0.5rem',
             padding: '0.6rem 0.85rem',
             background: '#f8fafc',
-            border: '1px solid #e2e8f0',
-            borderRadius: '8px',
+            border: '1px solid #cbd5e1',
+            borderRadius: '4px',
             fontSize: '0.775rem',
-            color: '#475569',
+            color: '#0f172a',
             marginBottom: '1.5rem'
           }}>
-            <ShieldCheck size={16} color="#16a34a" />
+            <ShieldCheck size={16} color="#0f172a" />
             <span>
               Pre-filled {roleTab === 'agent' ? 'Agent / Admin' : 'Customer'} demo credentials ready for 1-click login!
             </span>
@@ -194,7 +195,7 @@ const Login = () => {
               <label style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', cursor: 'pointer', color: '#475569' }}>
                 <input type="checkbox" defaultChecked /> Remember me
               </label>
-              <a href="#" style={{ color: '#0284c7', fontWeight: 600 }}>Forgot password?</a>
+              <a href="#" style={{ color: '#0f172a', fontWeight: 700 }}>Forgot password?</a>
             </div>
 
             <button type="submit" disabled={submitting} className="btn-dark" style={{ width: '100%' }}>
@@ -204,7 +205,7 @@ const Login = () => {
 
           <div style={{ textAlign: 'center', marginTop: '1.5rem', fontSize: '0.85rem', color: '#64748b' }}>
             Don't have an account?{' '}
-            <Link to="/register" style={{ color: '#0284c7', fontWeight: 700 }}>
+            <Link to="/register" style={{ color: '#0f172a', fontWeight: 800 }}>
               Register Customer
             </Link>
           </div>

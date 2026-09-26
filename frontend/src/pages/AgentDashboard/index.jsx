@@ -1,9 +1,10 @@
 import React, { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
-import api from '../services/api';
-import Sidebar from '../components/Sidebar';
-import { useAuth } from '../context/AuthContext';
+import api from '../../services/api';
+import Sidebar from '../../components/Sidebar';
+import { useAuth } from '../../context/AuthContext';
 import { ArrowRight } from 'lucide-react';
+import './index.css';
 
 const AgentDashboard = () => {
   const { user } = useAuth();
@@ -33,7 +34,7 @@ const AgentDashboard = () => {
   const recentTickets = tickets.slice(0, 5);
 
   return (
-    <div className="dashboard-layout">
+    <div className="dashboard-layout agent-dashboard-page">
       <Sidebar />
 
       <main className="dashboard-main">
@@ -43,19 +44,9 @@ const AgentDashboard = () => {
             <h1 className="welcome-title">Welcome back, {user?.name?.split(' ')[0] || 'Sarah'} 👋</h1>
             <p className="welcome-subtitle">Here's what's happening with your tickets.</p>
           </div>
-
-          <div className="header-user-profile">
-            <div className="user-avatar-circle" style={{ background: '#e0e7ff', color: '#4f46e5' }}>
-              {user?.name ? user.name.substring(0, 2).toUpperCase() : 'SL'}
-            </div>
-            <div className="user-profile-meta">
-              <span className="user-profile-name">{user?.name || 'Sarah Lee'}</span>
-              <span className="user-profile-role">Agent</span>
-            </div>
-          </div>
         </div>
 
-        {/* Stats Row matching Mockup #8 */}
+        {/* Stats Row */}
         <div className="stats-cards-grid">
           <div className="stat-card-item">
             <div className="stat-card-title">Total Tickets</div>
@@ -78,7 +69,7 @@ const AgentDashboard = () => {
           </div>
         </div>
 
-        {/* Overview Grid matching Mockup #8 */}
+        {/* Overview Grid */}
         <div className="overview-grid-container">
           {/* Ticket Overview Chart Box */}
           <div className="card-wrapper">
