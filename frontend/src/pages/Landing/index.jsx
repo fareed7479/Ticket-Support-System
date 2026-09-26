@@ -10,9 +10,6 @@ const Landing = () => {
       {/* Top Navbar */}
       <nav className="landing-navbar">
         <div className="sidebar-header" style={{ padding: 0 }}>
-          <div className="sidebar-logo-icon" style={{ background: '#ffffff', color: '#0f172a' }}>
-            <HelpCircle size={20} />
-          </div>
           <span className="sidebar-brand-name" style={{ color: '#ffffff' }}>HelpDesk</span>
         </div>
 

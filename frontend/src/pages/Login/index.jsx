@@ -76,9 +76,6 @@ const Login = () => {
       <div className="split-left-panel">
         <div>
           <div className="sidebar-header" style={{ padding: 0, marginBottom: '4rem' }}>
-            <div className="sidebar-logo-icon" style={{ background: '#ffffff', color: '#0f172a' }}>
-              <HelpCircle size={22} />
-            </div>
             <span className="sidebar-brand-name" style={{ color: '#ffffff' }}>HelpDesk</span>
           </div>
           <h1 style={{ fontSize: '2.5rem', fontWeight: 800, lineHeight: 1.2, color: '#ffffff' }}>

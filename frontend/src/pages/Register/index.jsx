@@ -72,9 +72,6 @@ const Register = () => {
 
       <div className="auth-form-card" style={{ maxWidth: '460px', position: 'relative', zIndex: 10 }}>
         <div style={{ display: 'flex', alignItems: 'center', gap: '0.6rem', marginBottom: '1.5rem', justifyContent: 'center' }}>
-          <div className="sidebar-logo-icon" style={{ background: '#0f172a', color: '#ffffff' }}>
-            <HelpCircle size={20} />
-          </div>
           <span className="sidebar-brand-name" style={{ color: '#0f172a' }}>HelpDesk</span>
         </div>
 

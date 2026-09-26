@@ -1,15 +1,6 @@
 import React from 'react';
 import { NavLink, useNavigate } from 'react-router-dom';
 import { useAuth } from '../../context/AuthContext';
-import { 
-  LayoutDashboard, 
-  Ticket, 
-  PlusCircle, 
-  Users, 
-  User, 
-  LogOut,
-  HelpCircle
-} from 'lucide-react';
 import './index.css';
 
 const Sidebar = () => {
@@ -28,9 +19,6 @@ const Sidebar = () => {
   return (
     <aside className="sidebar">
       <div className="sidebar-header">
-        <div className="sidebar-logo-icon">
-          <HelpCircle size={22} />
-        </div>
         <span className="sidebar-brand-name">HelpDesk</span>
       </div>
 
@@ -41,7 +29,6 @@ const Sidebar = () => {
               to="/agent/dashboard" 
               className={({ isActive }) => `nav-item ${isActive ? 'active' : ''}`}
             >
-              <LayoutDashboard size={18} />
               <span>Dashboard</span>
             </NavLink>
 
@@ -49,7 +36,6 @@ const Sidebar = () => {
               to="/agent/tickets" 
               className={({ isActive }) => `nav-item ${isActive ? 'active' : ''}`}
             >
-              <Ticket size={18} />
               <span>All Tickets</span>
             </NavLink>
 
@@ -57,7 +43,6 @@ const Sidebar = () => {
               to="/agent/users" 
               className={({ isActive }) => `nav-item ${isActive ? 'active' : ''}`}
             >
-              <Users size={18} />
               <span>Users & Agents</span>
             </NavLink>
 
@@ -65,7 +50,6 @@ const Sidebar = () => {
               to="/profile" 
               className={({ isActive }) => `nav-item ${isActive ? 'active' : ''}`}
             >
-              <User size={18} />
               <span>Profile</span>
             </NavLink>
           </>
@@ -75,7 +59,6 @@ const Sidebar = () => {
               to="/customer/dashboard" 
               className={({ isActive }) => `nav-item ${isActive ? 'active' : ''}`}
             >
-              <LayoutDashboard size={18} />
               <span>Dashboard</span>
             </NavLink>
 
@@ -83,7 +66,6 @@ const Sidebar = () => {
               to="/customer/tickets" 
               className={({ isActive }) => `nav-item ${isActive ? 'active' : ''}`}
             >
-              <Ticket size={18} />
               <span>My Tickets</span>
             </NavLink>
 
@@ -91,7 +73,6 @@ const Sidebar = () => {
               to="/customer/tickets/new" 
               className={({ isActive }) => `nav-item ${isActive ? 'active' : ''}`}
             >
-              <PlusCircle size={18} />
               <span>Create Ticket</span>
             </NavLink>
 
@@ -99,7 +80,6 @@ const Sidebar = () => {
               to="/profile" 
               className={({ isActive }) => `nav-item ${isActive ? 'active' : ''}`}
             >
-              <User size={18} />
               <span>Profile</span>
             </NavLink>
           </>
@@ -118,7 +98,6 @@ const Sidebar = () => {
         </div>
 
         <button onClick={handleLogout} className="logout-btn">
-          <LogOut size={16} />
           <span>Logout</span>
         </button>
       </div>
