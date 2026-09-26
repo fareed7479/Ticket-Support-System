@@ -1,6 +1,6 @@
 import React from 'react';
 import { NavLink, useNavigate } from 'react-router-dom';
-import { useAuth } from '../context/AuthContext';
+import { useAuth } from '../../context/AuthContext';
 import { 
   LayoutDashboard, 
   Ticket, 
@@ -10,6 +10,7 @@ import {
   LogOut,
   HelpCircle
 } from 'lucide-react';
+import './index.css';
 
 const Sidebar = () => {
   const { user, logout } = useAuth();
@@ -106,8 +107,18 @@ const Sidebar = () => {
       </nav>
 
       <div className="sidebar-footer">
+        <div className="navbar-user-profile">
+          <div className="user-avatar-circle">
+            {user?.name ? user.name.substring(0, 2).toUpperCase() : 'JD'}
+          </div>
+          <div className="user-profile-meta">
+            <span className="user-profile-name">{user?.name || 'User'}</span>
+            <span className="user-profile-role">{isAgent ? 'Support Agent' : 'Customer'}</span>
+          </div>
+        </div>
+
         <button onClick={handleLogout} className="logout-btn">
-          <LogOut size={18} />
+          <LogOut size={16} />
           <span>Logout</span>
         </button>
       </div>

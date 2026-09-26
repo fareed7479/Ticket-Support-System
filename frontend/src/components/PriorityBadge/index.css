@@ -1,0 +1,18 @@
+/* PriorityBadge Specific CSS */
+.badge-pill.badge-high {
+  background-color: #ffe4e6;
+  color: #b32400;
+  border: 1px solid #fecaca;
+}
+
+.badge-pill.badge-medium {
+  background-color: #fef3c7;
+  color: #92400e;
+  border: 1px solid #fde68a;
+}
+
+.badge-pill.badge-low {
+  background-color: #e0e7ff;
+  color: #36c;
+  border: 1px solid #c7d2fe;
+}

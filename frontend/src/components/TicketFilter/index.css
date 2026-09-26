@@ -1,0 +1,8 @@
+/* TicketFilter Component CSS */
+.filter-bar-flex {
+  display: flex;
+  gap: 1.25rem;
+  margin-bottom: 1.75rem;
+  flex-wrap: wrap;
+  width: 100%;
+}

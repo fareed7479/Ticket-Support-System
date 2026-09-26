@@ -1,0 +1,7 @@
+/* Navbar Component CSS */
+.navbar {
+  width: 100%;
+  background: var(--bg-panel);
+  border-bottom: 1px solid var(--border-color);
+  padding: 0.75rem 2rem;
+}
