@@ -239,25 +239,3 @@ The collection includes pre-configured collection variables:
 
 ---
 
-## 🎓 Technical Interview Defense & Key Concepts
-
-When explaining this application in an interview:
-
-1. **Why JWT over server-side session cookies?**
-   - Stateless architecture: The backend does not need to store active session tokens in memory or database. Every request carries the signed token in the `Authorization: Bearer <token>` header.
-
-2. **Why bcrypt for password storage?**
-   - `bcrypt` includes automatic salting (protects against pre-computed rainbow table attacks) and a configurable cost factor (slownesses down brute-force attacks).
-
-3. **What is the difference between 401 Unauthorized and 403 Forbidden?**
-   - `401 Unauthorized`: The requester is unauthenticated (missing, invalid, or expired JWT).
-   - `403 Forbidden`: The requester is authenticated, but lacks sufficient permissions (e.g. customer attempting an agent-only action).
-
-4. **Why use Parameterized Queries (`?`) in raw SQL?**
-   - Prevents SQL Injection. Parameterized queries instruct the database to compile SQL statements first and treat user inputs strictly as parameters, never as executable code.
-
-5. **Why use a MySQL Connection Pool (`mysql2.createPool`)?**
-   - Creating a new TCP database connection for every incoming HTTP request causes heavy network overhead and connection exhaustion. A connection pool keeps a set of open connections ready for reuse.
-
-6. **Why Axios Interceptors?**
-   - Centralizes attaching the `Authorization` header across all outgoing API requests and provides global error handling (e.g. auto-logout on token expiration).
